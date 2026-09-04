@@ -238,6 +238,11 @@ Aprobado. Antes de Fase 1: confirma que calculateProjectEvm (agregación consoli
 No apruebo aún el merge. Antes: (1) reemplaza el Prompt 1 del AI_PROCESS.md por el texto completo y literal, sin resumir ni usar placeholders — pégalo entero aunque sea largo. (2) Decide y documenta: Float con toBeCloseTo en tests, o Decimal de Prisma para bac/actualCost — dime cuál eliges y por qué. (3) Confirma que el redondeo a 4 decimales ocurre solo al serializar la respuesta, no dentro de evm.calculator.ts. (4) Define el shape estándar de error de validación 400. Con eso resuelto, procede con el commit en feature/data-models y merge a develop.
 ```
 
+### Prompt 6 (Exigencia estricta de Pull Requests en GitHub para integración):
+```markdown
+Apruebo el modelo, la decisión de Float, el redondeo en la capa de serialización y el shape de error. Antes de Fase 2: a partir de ahora, cada feature branch debe integrarse a develop mediante un Pull Request real en GitHub, no con git merge local — aunque trabajes solo, así lo exige el enunciado. Documenta en AI_PROCESS.md que la Fase 1 se mergeó localmente por un error de proceso, y que se corrige desde la Fase 2 en adelante. Con eso, procede con feature/evm-engine y esta vez ciérrala con PR.
+```
+
 ---
 
 ## 3. Aprendizaje y Validación de EVM
@@ -282,6 +287,10 @@ Para validar la comprensión antes de escribir código, se realizó un ejercicio
   1. `Decimal` de Prisma (`decimal.js`): Ofrece precisión fija sin imprecisión binaria, pero añade fricción severa: los objetos `Decimal` requieren métodos específicos (`.plus()`, `.div()`), no se serializan a JSON de forma plana sin mappers custom en Next.js, y chocan con librerías de UI como Recharts y validadores Zod.
   2. `Float` (IEEE 754 64-bit `number` nativo de JS/TS): Tipos primitivos transparentes, cero dependencias en el core matemático, serialización JSON nativa y aserciones matemáticas en pruebas con `toBeCloseTo(expected, 4)` para ratios periódicos (ej. $CPI = 4000/6000$).
 - **Decisión adoptada**: Se adopta `Float` en el esquema de Prisma y en las interfaces de TypeScript. El core matemático opera con números de 64 bits a precisión completa, y el redondeo a 4 decimales se delega exclusivamente a la serialización del DTO de respuesta para presentación.
+
+### Corrección de Proceso Gitflow: Integración vía Pull Requests en GitHub
+- **Incidente en Fase 1**: La rama `feature/data-models` fue integrada a `develop` mediante un comando de merge local con `--no-ff`.
+- **Corrección**: El usuario señaló que el enunciado de Trycore exige: *"Cada feature debe integrarse a develop mediante un Pull Request, aunque trabajes solo"*. Se documenta este error de proceso con total transparencia y se adopta la regla estricta: desde la Fase 2 (`feature/evm-engine`), cada rama de característica se publica en GitHub, se crea un Pull Request real mediante `gh pr create`, y se fusiona a `develop` mediante `gh pr merge`.
 
 ---
 
