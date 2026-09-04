@@ -243,6 +243,45 @@ No apruebo aún el merge. Antes: (1) reemplaza el Prompt 1 del AI_PROCESS.md por
 Apruebo el modelo, la decisión de Float, el redondeo en la capa de serialización y el shape de error. Antes de Fase 2: a partir de ahora, cada feature branch debe integrarse a develop mediante un Pull Request real en GitHub, no con git merge local — aunque trabajes solo, así lo exige el enunciado. Documenta en AI_PROCESS.md que la Fase 1 se mergeó localmente por un error de proceso, y que se corrige desde la Fase 2 en adelante. Con eso, procede con feature/evm-engine y esta vez ciérrala con PR.
 ```
 
+### Prompt 7 (Adopción de PLAN.md canónico y solicitud de comparación):
+```markdown
+Te adjunto el documento plan-implementacion-trycore-evmv2, este es el plan de implementación CANÓNICO y
+vigente del proyecto. Reemplaza cualquier versión anterior del plan que tengas
+en memoria o hayas generado antes en esta conversación por este documento.
+
+Acciones inmediatas:
+
+1. Guarda este contenido tal cual en la raíz del repositorio como PLAN.md
+   (créalo si no existe, sobrescríbelo si ya existe una versión distinta).
+   Este archivo debe mantenerse sincronizado con las decisiones reales del
+   proyecto de aquí en adelante, es la única fuente de verdad del plan,
+   no la regeneres desde cero en el chat cuando te pida revisarlo.
+
+2. Compara este plan-implementacion-trycore-evmv2 contra el estado actual real del código y del
+   repositorio (ramas, PRs, archivos ya creados) y dime explícitamente:
+   - Qué partes del plan ya están implementadas y coinciden.
+   - Si hay alguna discrepancia entre lo que dice el plan y lo que
+     realmente existe en el código (por ejemplo, si el modelo de datos,
+     el manejo de errores, o la lógica de CPI/SPI difieren de lo aquí
+     documentado).
+
+3. A partir de ahora, cualquier decisión nueva que tomes (de arquitectura,
+   de manejo de casos borde, de proceso Git, etc.) debe:
+   - Quedar reflejada como una actualización de PLAN.md (no solo mencionada
+     en el chat).
+   - Quedar registrada también en AI_PROCESS.md si califica como una de
+     las decisiones que el enunciado de Trycore exige documentar.
+
+4. Antes de proponer avanzar a la siguiente fase, cita explícitamente qué
+   sección de plan-implementacion-trycore-evmv2 estás ejecutando (por ejemplo: "Fase 3, caso borde 4")
+   para que yo pueda verificar contra el documento sin tener que confiar
+   en un resumen tuyo hecho de memoria.
+
+Confírmame que recibiste el plan-implementacion-trycore-evmv2, que lo guardaste en el repo, y dame el
+resultado de la comparación del punto 2 antes de continuar con cualquier
+desarrollo nuevo.
+```
+
 ---
 
 ## 3. Aprendizaje y Validación de EVM
