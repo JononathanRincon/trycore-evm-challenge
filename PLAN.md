@@ -69,30 +69,27 @@ PruebaTecnica/
 ├── public/                       # Assets estáticos
 ├── src/
 │   ├── app/                      # Next.js App Router
-│   │   ├── (dashboard)/          # Vistas de la aplicación
-│   │   │   ├── page.tsx          # Dashboard principal de proyectos
-│   │   │   └── projects/[id]/    # Detalle de proyecto, actividades y gráficos
-│   │   ├── api/                  # API REST (Controllers delgados)
-│   │   │   ├── projects/
-│   │   │   │   ├── route.ts      # GET (listar), POST (crear)
-│   │   │   │   └── [id]/
-│   │   │   │       ├── route.ts  # GET (detalle con EVM), PUT (editar), DELETE
-│   │   │   │       └── activities/
-│   │   │   │           └── route.ts # POST (crear actividad en proyecto)
-│   │   │   ├── activities/
-│   │   │   │   └── [id]/
-│   │   │   │       └── route.ts  # PUT (editar actividad), DELETE (eliminar)
-│   │   │   └── docs/
-│   │   │       └── route.ts      # Endpoint que sirve el JSON de OpenAPI
-│   │   ├── api-docs/             # Página con Swagger UI interactivo
-│   │   │   └── page.tsx
+│   │   ├── page.tsx              # Dashboard ejecutivo consolidado (SPA con selector dinámico de proyectos)
 │   │   ├── layout.tsx
-│   │   └── globals.css
-│   ├── components/               # Componentes de UI
-│   │   ├── dashboard/            # Indicadores consolidados, métricas EVM, badges
-│   │   ├── activities/           # Tabla de actividades, modales crear/editar
-│   │   ├── charts/                # Gráfica comparativa PV/EV/AC (Recharts)
-│   │   └── ui/                   # Botones, inputs, tarjetas, badges
+│   │   ├── globals.css
+│   │   ├── api-docs/             # Página con Swagger UI interactivo (Client Component con ssr: false)
+│   │   │   └── page.tsx
+│   │   └── api/                  # API REST (Controllers delgados)
+│   │       ├── projects/
+│   │       │   ├── route.ts      # GET (listar), POST (crear)
+│   │       │   └── [id]/
+│   │       │       ├── route.ts  # GET (detalle con EVM), PUT (editar), DELETE
+│   │       │       └── activities/
+│   │       │           └── route.ts # POST (crear actividad en proyecto)
+│   │       ├── activities/
+│   │       │   └── [id]/
+│   │       │       └── route.ts  # PUT (editar actividad), DELETE (eliminar)
+│   │       └── docs/
+│   │           └── route.ts      # Endpoint que sirve el JSON del spec OpenAPI 3.0
+│   ├── components/               # Componentes de UI modulares y desacoplados
+│   │   ├── dashboard/            # DashboardClient (orquestador de estado), ConsolidatedMetricsCards, TrafficLightBadge
+│   │   ├── activities/           # ActivityTable (tabla con indicadores), ActivityModal (creación/edición con validación)
+│   │   └── charts/               # EvmComparisonChart (barras agrupadas Recharts), chart.helpers.ts (transformación pura)
 │   ├── core/                     # Capa de Dominio y Lógica de Negocio
 │   │   ├── evm/
 │   │   │   ├── evm.types.ts      # Tipos e interfaces de entrada/salida EVM
@@ -130,8 +127,9 @@ PruebaTecnica/
 
 ```prisma
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 generator client {
@@ -161,6 +159,7 @@ model Activity {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
+  @@index([projectId])
   @@map("activities")
 }
 ```
