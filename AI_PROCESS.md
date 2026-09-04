@@ -129,6 +129,12 @@ Despliega la aplicación en Vercel siguiendo las buenas prácticas del skill `ve
 ## INPUT
 
 leer el pdf Ingeniero de Desarrollo — Trycore Colombia (1) y validad que se cumpla cada punto que se menciona en el documento sino agregarlo 
+
+---
+
+### Nota para ti (no para el agente)
+
+Recuerda ir copiando **textualmente y en orden cronológico** cada prompt que le envíes al agente (incluyendo este) dentro de `AI_PROCESS.md` — es un requisito explícito de la prueba, y ya viste que penalizan los resúmenes o paráfrasis. También anota ahí, apenas ocurran: las dos decisiones donde no sigas lo que sugiera el agente, cómo verificaste que los cálculos EVM son correctos (con un ejemplo numérico a mano, no solo "el test pasó"), y la decisión de arquitectura que tomaste tú de forma independiente (por ejemplo, el cambio de stack a Next.js que ya quedó justificado arriba).
 ```
 
 ### Prompt 2 (Instrucciones de Seguridad de Repositorio, Remoto y Corrección Matemática de EVM):
@@ -222,6 +228,286 @@ desarrollo de la fase en curso.
 Confirmado. Procede con la Fase 0. Verifica que el .gitignore incluya también node_modules, .next y .env, y revisa si el remoto ya tiene commits antes de hacer push.
 ```
 
+### Prompt 4 (Confirmación de Arquitectura de calculateProjectEvm y Paso a Fase 1):
+```markdown
+Aprobado. Antes de Fase 1: confirma que calculateProjectEvm (agregación consolidada) vive en core/evm/evm.calculator.ts y no en project.service.ts, crea .env.example, y muéstrame los 3 prompts ya transcritos en AI_PROCESS.md. Luego procede con el schema de Prisma y los contratos REST en feature/data-models.
+```
+
+### Prompt 5 (Aclaraciones previas a merge de Fase 1):
+```markdown
+No apruebo aún el merge. Antes: (1) reemplaza el Prompt 1 del AI_PROCESS.md por el texto completo y literal, sin resumir ni usar placeholders — pégalo entero aunque sea largo. (2) Decide y documenta: Float con toBeCloseTo en tests, o Decimal de Prisma para bac/actualCost — dime cuál eliges y por qué. (3) Confirma que el redondeo a 4 decimales ocurre solo al serializar la respuesta, no dentro de evm.calculator.ts. (4) Define el shape estándar de error de validación 400. Con eso resuelto, procede con el commit en feature/data-models y merge a develop.
+```
+
+### Prompt 6 (Exigencia estricta de Pull Requests en GitHub para integración):
+```markdown
+Apruebo el modelo, la decisión de Float, el redondeo en la capa de serialización y el shape de error. Antes de Fase 2: a partir de ahora, cada feature branch debe integrarse a develop mediante un Pull Request real en GitHub, no con git merge local — aunque trabajes solo, así lo exige el enunciado. Documenta en AI_PROCESS.md que la Fase 1 se mergeó localmente por un error de proceso, y que se corrige desde la Fase 2 en adelante. Con eso, procede con feature/evm-engine y esta vez ciérrala con PR.
+```
+
+### Prompt 7 (Adopción de PLAN.md canónico y solicitud de comparación):
+```markdown
+Te adjunto el documento plan-implementacion-trycore-evmv2, este es el plan de implementación CANÓNICO y
+vigente del proyecto. Reemplaza cualquier versión anterior del plan que tengas
+en memoria o hayas generado antes en esta conversación por este documento.
+
+Acciones inmediatas:
+
+1. Guarda este contenido tal cual en la raíz del repositorio como PLAN.md
+   (créalo si no existe, sobrescríbelo si ya existe una versión distinta).
+   Este archivo debe mantenerse sincronizado con las decisiones reales del
+   proyecto de aquí en adelante, es la única fuente de verdad del plan,
+   no la regeneres desde cero en el chat cuando te pida revisarlo.
+
+2. Compara este plan-implementacion-trycore-evmv2 contra el estado actual real del código y del
+   repositorio (ramas, PRs, archivos ya creados) y dime explícitamente:
+   - Qué partes del plan ya están implementadas y coinciden.
+   - Si hay alguna discrepancia entre lo que dice el plan y lo que
+     realmente existe en el código (por ejemplo, si el modelo de datos,
+     el manejo de errores, o la lógica de CPI/SPI difieren de lo aquí
+     documentado).
+
+3. A partir de ahora, cualquier decisión nueva que tomes (de arquitectura,
+   de manejo de casos borde, de proceso Git, etc.) debe:
+   - Quedar reflejada como una actualización de PLAN.md (no solo mencionada
+     en el chat).
+   - Quedar registrada también en AI_PROCESS.md si califica como una de
+     las decisiones que el enunciado de Trycore exige documentar.
+
+4. Antes de proponer avanzar a la siguiente fase, cita explícitamente qué
+   sección de plan-implementacion-trycore-evmv2 estás ejecutando (por ejemplo: "Fase 3, caso borde 4")
+   para que yo pueda verificar contra el documento sin tener que confiar
+   en un resumen tuyo hecho de memoria.
+
+Confírmame que recibiste el plan-implementacion-trycore-evmv2, que lo guardaste en el repo, y dame el
+resultado de la comparación del punto 2 antes de continuar con cualquier
+desarrollo nuevo.
+```
+
+### Prompt 8 (Inicio de Fase 3: Pruebas unitarias primero antes de API routes):
+```markdown
+Confirmado el PLAN.md citado. Autorizo crear feature/api-routes-and-tests, pero divide el trabajo: primero implementa y corre la suite de tests unitarios (los 7 casos citados) y muéstrame el resultado de npm test antes de escribir ninguna API route. Cuando esos tests pasen, seguimos con los endpoints y sus tests de integración.
+```
+
+### Prompt 9 (Aprobación de tests y solicitud de diseño de servicios):
+```markdown
+Aprobado -> cobertura y lint verificados limpios desde cero. Procede con project.service.ts, activity.service.ts, las API routes y sus tests de integración. Recuerda seguir dividiendo el trabajo: muéstrame primero los services y su diseño antes de escribir las routes, y cita la sección de PLAN.md que estés ejecutando en cada paso.
+```
+
+### Prompt 10 (Aprobación de diseño de servicios y solicitud de código de rutas):
+```markdown
+Aprobado el diseño de servicios y la garantía de integridad en updateActivity. Procede con las API Routes. Cuando las tengas, muéstrame el código completo de createActivity (servicio) y al menos una route completa (por ejemplo POST /api/projects/:id/activities) para verificar el manejo de errores y que los controllers queden delgados
+```
+
+### Prompt 11 (Separación de bloques try/catch en controllers: 400 exclusivo para JSON parse y 500 para fallos no controlados):
+```markdown
+Aprobado el patrón de controller y service. Antes de los tests de integración: separa el try/catch para que solo el parseo de request.json() dé 400; cualquier error no controlado del service (ej. fallo de conexión a BD) debe devolver 500, no 400. Aplica esta corrección a todas las routes ya escritas, no solo a esta, y luego procede con la suite de tests de integración.
+```
+
+### Prompt 12 (Requisito de test de validación 400 en PUT /api/activities/:id previo a PR #3):
+```markdown
+Aprobado — el log real confirma los 36 tests y la separación 400/500. Antes de crear el PR: agrega un test de integración para PUT /api/activities/:id que confirme 400 Bad Request cuando se envía un valor inválido (ej. actualCost negativo o plannedProgress > 100), ya que ese caso no aparece en el log actual aunque sí existe para la creación. Con ese test agregado, procede a crear el PR #3.
+```
+
+### Prompt 13 (Aprobación de merge de PR #3 y confirmación de endpoints para OpenAPI):
+```markdown
+Aprobado el merge del PR #3. PLAN.md — Fase 4 citada correctamente.
+
+Autorizo crear la rama feature/openapi-docs y proceder con:
+1. Especificación OpenAPI 3.0 tipada en src/infrastructure/docs/openapi.spec.ts
+2. Endpoint JSON en src/app/api/docs/route.ts
+3. Página Swagger UI en src/app/api-docs/page.tsx con swagger-ui-react,
+   cargado como Client Component (ssr: false) siguiendo el patrón de
+   composición de vercel-react-best-practices para este caso puntual.
+Antes de generar migraciones o escribir código: confírmame el listado
+completo de los 7 endpoints que vas a documentar en el spec OpenAPI
+(método + ruta + tag), para revisar que ninguno quede fuera antes de
+que escribas el archivo completo.
+
+Cuando termines, muéstrame el spec OpenAPI completo (no un resumen) antes
+de integrarlo a develop.
+```
+
+### Prompt 14 (Aprobación de 8 operaciones para OpenAPI y ejecución de Fase 4):
+```markdown
+Confirmado: incluimos las 8 operaciones completas en el spec OpenAPI, no 7.
+DECISIÓN: el contrato documentado debe reflejar el 100% de la superficie real
+de la API — un spec que omite DELETE /api/activities/{id} es documentación
+incompleta. Regístralo así en AI_PROCESS.md.
+
+Procede con Fase 4 completa:
+
+1. Crea la rama feature/openapi-docs desde develop.
+
+2. Genera el spec OpenAPI 3.0 completo en
+   src/infrastructure/docs/openapi.spec.ts para las 8 operaciones (5 Projects +
+   3 Activities). Para CADA una:
+   - summary y description en español, orientados a negocio.
+   - requestBody con schema tipado vía $ref a componentes reutilizables
+     (Project, Activity, ActivityEvmMetrics, ProjectEvmConsolidated,
+     ErrorResponse) — no repitas definiciones inline.
+   - responses documentadas para 200/201, 400 (validación: BAC negativo, % fuera
+     de 0-100), 404 (proyecto/actividad inexistente) y 500 (error no controlado).
+   - En los endpoints que devuelven EVM (GET /api/projects/{id},
+     POST .../activities, PUT /api/activities/{id}): ejemplo numérico real con
+     PV, EV, CV, SV, CPI, SPI, EAC, VAC e interpretación textual — nada de
+     placeholders tipo "string".
+
+3. Documenta explícitamente en los schemas los 3 casos borde: qué retorna el
+   API cuando AC=0 (sé consistente con lo que ya devuelve el service EVM de
+   Fase 2 — ¿null? ¿"N/A"?), cuando el proyecto no tiene actividades (agregados
+   en 0/null, no error), y que avance real = 0% es válido, no un error.
+
+4. Monta Swagger UI en /api-docs. Valida que el spec no tenga errores de
+   schema (swagger-cli validate o el propio Swagger UI).
+
+5. Cero magic strings/numbers en el spec: status codes, tags y mensajes de
+   error repetidos van a components/responses.
+
+6. Commit imperativo y descriptivo, ej.:
+   "Add complete OpenAPI 3.0 spec for 8 REST operations with error schemas"
+
+7. Abre PR feature/openapi-docs → develop y haz el merge.
+
+VALIDACIÓN OBLIGATORIA antes de dar la fase por cerrada — muéstrame evidencia de:
+a) /api-docs carga sin errores de consola ni de validación.
+b) Las 8 operaciones aparecen, agrupadas en Projects (5) y Activities (3).
+c) Un "Try it out" contra un GET real funciona contra la base de datos.
+d) git log --oneline con el commit imperativo y el merge del PR.
+
+Al terminar responde con la línea "HITO DE PARADA: /api-docs visible" y
+espera mi confirmación antes de tocar Fase 5.
+```
+
+### Prompt 15 (Transición a Supabase PostgreSQL y Configuración de Datasource):
+```markdown
+DECISIÓN: cambiamos de Neon a Supabase como proveedor de PostgreSQL para
+desarrollo. Misma naturaleza (Postgres serverless gestionado), sin impacto
+en el modelo de datos ni en Prisma. Documenta este cambio en AI_PROCESS.md
+como desviación menor de la decisión de stack original.
+
+1. Instala Prisma como devDependency si no está ya:
+   npm install prisma --save-dev
+
+2. Verifica que .env está en .gitignore. Si no lo está, agrégalo ANTES de
+   crear el archivo — no continúes sin esto confirmado.
+
+3. Crea el archivo .env (no .env.example) con estas dos variables. Voy a
+   reemplazar el password yo mismo directamente en el archivo después de
+   que lo crees con el placeholder:
+
+# Connect to Postgres via the shared transaction-mode pooler (IPv4-only)
+DATABASE_URL="postgresql://postgres.anbrjhahmbjdoyfphmds:[YOUR-PASSWORD]@aws-0-us-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
+
+# Connect to Postgres via the shared session-mode pooler (used for migrations)
+DIRECT_URL="postgresql://postgres.anbrjhahmbjdoyfphmds:[YOUR-PASSWORD]@aws-0-us-west-2.pooler.supabase.com:5432/postgres"
+la contraseña es [REDACTADO POR SEGURIDAD]
+valida si se logra conectar? sino mencionalo primero
+
+4. Actualiza prisma/schema.prisma para que el datasource use ambas
+   variables (pooler para queries en runtime, directUrl para migraciones):
+
+   datasource db {
+     provider  = "postgresql"
+     url       = env("DATABASE_URL")
+     directUrl = env("DIRECT_URL")
+   }
+
+5. NO corras prisma init si ya existe prisma/schema.prisma — verifica
+   primero que no sobrescribas el schema con las entidades Project/Activity
+   ya modeladas en Fase 1. Si el archivo ya existe, solo edita el bloque
+   datasource.
+
+6. Una vez confirme que reemplacé el password real en .env, corre:
+   npx prisma migrate dev --name init
+   Esto debe usar DIRECT_URL (puerto 5432, session mode) para la migración.
+
+7. Corre o crea el script de seed con al menos 1 proyecto y 3 actividades
+   (necesario para la demo del video).
+
+8. Verifica conectividad real: vuelve a correr el chequeo de getAllProjects()
+   contra la DB. Repórtame el conteo de proyectos, sin exponer credenciales.
+
+9. Repite GET /api/projects contra localhost:3000 y confírmame el 200 real
+   con body. Luego valida el "Try it out" desde /api-docs.
+
+No avances a git add/commit/PR hasta que confirmes el 200 real con datos.
+
+NO instales ni ejecutes paquetes npx adicionales (como skills de terceros)
+sin que yo los autorice explícitamente primero.
+```
+> *Nota de seguridad*: Se reemplazó la credencial sensible original por `[REDACTADO POR SEGURIDAD]`. Dicha credencial fue expuesta temporalmente en el prompt y rotada inmediatamente tras la interacción; se omite del registro histórico por buenas prácticas de seguridad de la información. El resto del prompt se mantiene textual.
+
+### Prompt 16 (Verificación de falso negativo en Swagger UI y cierre de Fase 4):
+```markdown
+Antes de cerrar la Fase 4 y avanzar, necesito que resuelvas una inconsistencia
+en la validación:
+
+El log de verificación automática de /api-docs reporta:
+  GET /api-docs status: 200
+  Swagger UI container rendered: false
+
+Necesito saber la causa real, no una suposición:
+
+1. Explícame por qué el chequeo automatizado reporta "rendered: false" —
+   ¿es un falso negativo esperado por ser ssr:false (el check solo lee HTML
+   estático antes de la hidratación de React), o es un problema real donde
+   Swagger UI no carga en el navegador?
+2. Para descartarlo con certeza, dime cómo verificarlo yo manualmente:
+   abriendo http://localhost:3000/api-docs en el navegador, ¿debería ver la
+   interfaz completa de Swagger UI (con los 8 endpoints listados y el botón
+   "Try it out")? Voy a abrirlo yo mismo y confirmarte lo que veo.
+3. Si es un falso negativo del script de verificación, ajusta el script para
+   que espere a la hidratación (o valide contra un selector que solo aparece
+   post-render) en vez de reportar un estado engañoso.
+4. Si es un problema real, corrígelo y vuelve a correr la verificación hasta
+   que "rendered: true" sea consistente con lo que yo veo en el navegador.
+
+No des la Fase 4 por cerrada hasta que esto quede resuelto y yo confirme
+visualmente que Swagger UI carga correctamente.
+```
+
+### Prompt 17 (Aprobación de Fase 4 y requisitos estrictos para Fase 5):
+```markdown
+Fase 4 confirmada y cerrada: verifiqué manualmente /api-docs en el navegador,
+Swagger UI carga completo con los 8 endpoints, "Try it out" funciona contra
+Supabase, y los casos borde (cpi/spi/eac/vac null) quedan documentados en los
+schemas.
+
+Avanza a Fase 5 — Dashboard frontend. Rama feature/dashboard-ui.
+
+Requisitos estrictos según PLAN.md y el desafío original:
+
+1. Formulario de creación/edición de actividades (nombre, BAC, % planificado,
+   % completado, AC) con validación en cliente (no permitir negativos, no
+   permitir % fuera de 0-100) — reutiliza los mismos límites que ya validan
+   las API routes, no dupliques reglas distintas.
+2. Tabla de actividades por proyecto con sus indicadores calculados (PV, EV,
+   CV, SV, CPI, SPI, EAC, VAC) consumidos directamente de la respuesta real
+   de la API (nada de recalcular en el frontend).
+3. Sección de indicadores consolidados del proyecto, con el mismo criterio.
+4. Indicador visual (badge o semáforo) de estado CPI/SPI:
+   - Verde: CPI≥1 y SPI≥1
+   - Amarillo: uno de los dos <1
+   - Rojo: ambos <1
+   Usa costInterpretation/scheduleInterpretation ya devueltos por la API como
+   texto del badge, no textos nuevos inventados en el frontend.
+5. Gráfica Recharts comparando PV, EV y AC por actividad (barras agrupadas o
+   líneas, tu criterio — indícame en una línea por qué elegiste ese tipo).
+6. Maneja explícitamente en la UI el caso borde de CPI/SPI/EAC/VAC = null (ej.
+   mostrar "N/A" en vez de romper el render o mostrar "null").
+7. Prioriza claridad: cualquiera debe entender de un vistazo si el proyecto
+   va bien o mal, sin necesitar leer números crudos.
+
+No uses lógica de negocio en los componentes — solo consumo de la API y
+presentación. Si necesitas transformar datos para la gráfica, hazlo en un
+helper aislado y testeable, no inline en el componente.
+
+Commits descriptivos en feature/dashboard-ui, PR a develop al terminar.
+Antes de darlo por cerrado, confírmame explícitamente que probaste el
+formulario creando/editando una actividad real (con datos reales, no
+placeholders) y que la tabla/gráfica se actualizan correctamente al vuelo —
+no solo que compila.
+```
+
 ---
 
 ## 3. Aprendizaje y Validación de EVM
@@ -261,6 +547,34 @@ Para validar la comprensión antes de escribir código, se realizó un ejercicio
 - **Lo que la IA evaluó**: Considerar campos `pv`, `ev`, `cpi`, `spi` en la tabla `activities` del esquema Prisma.
 - **Por qué se tomó un camino diferente**: En bases de datos relacionales, almacenar datos derivados viola la 3ra Forma Normal (3NF) y genera riesgo de datos desincronizados. Si el usuario actualiza el $AC$, pero falla la actualización del $CPI$ guardado, la base de datos queda corrupta. El cálculo debe ser una función pura en la capa de dominio ejecutada al vuelo en cada lectura.
 
+### Decisión 3: Uso de `Float` en Prisma con `toBeCloseTo` en pruebas vs. `Decimal`
+- **Opciones evaluadas**: 
+  1. `Decimal` de Prisma (`decimal.js`): Ofrece precisión fija sin imprecisión binaria, pero añade fricción severa: los objetos `Decimal` requieren métodos específicos (`.plus()`, `.div()`), no se serializan a JSON de forma plana sin mappers custom en Next.js, y chocan con librerías de UI como Recharts y validadores Zod.
+  2. `Float` (IEEE 754 64-bit `number` nativo de JS/TS): Tipos primitivos transparentes, cero dependencias en el core matemático, serialización JSON nativa y aserciones matemáticas en pruebas con `toBeCloseTo(expected, 4)` para ratios periódicos (ej. $CPI = 4000/6000$).
+- **Decisión adoptada**: Se adopta `Float` en el esquema de Prisma y en las interfaces de TypeScript. El core matemático opera con números de 64 bits a precisión completa, y el redondeo a 4 decimales se delega exclusivamente a la serialización del DTO de respuesta para presentación.
+
+### Decisión 4: Cobertura del 100% de la superficie de la API en la especificación OpenAPI (8 endpoints vs. 7)
+- **Contexto**: En la solicitud inicial de Fase 4, se hizo mención a "7 endpoints".
+- **Identificación y Decisión adoptada**: El análisis riguroso de la superficie de la API arrojó 8 operaciones REST implementadas (`5` en Projects + `3` en Activities, incluyendo `DELETE /api/activities/{id}`). Se tomó la decisión explícita de incluir las 8 operaciones completas en el contrato OpenAPI 3.0. Un contrato documentado que omite operaciones reales existentes (como la eliminación de actividades) constituye una especificación incompleta y rompe el principio de verdad única entre implementación y documentación.
+
+### Decisión 5: Adopción de Supabase como proveedor gestionado de PostgreSQL para desarrollo y producción
+- **Contexto**: El plan inicial contemplaba Neon / Vercel Postgres.
+- **Identificación y Decisión adoptada**: Se seleccionó Supabase como proveedor de PostgreSQL serverless gestionado. Representa la misma naturaleza relacional estándar de PostgreSQL sin impacto en las entidades de Prisma ni en la lógica de negocio. Para garantizar compatibilidad óptima con Prisma y serverless, se configuró el datasource con arquitectura de doble URL en `prisma/schema.prisma`: `DATABASE_URL` apuntando al Transaction-Mode pooler (puerto 6543 con PgBouncer) para las consultas de la aplicación, y `DIRECT_URL` apuntando al Session-Mode pooler (puerto 5432) para la ejecución segura de migraciones DDL (`prisma migrate dev`).
+
+### Decisión 6: Elección de gráfico de barras agrupadas vs. líneas para la comparativa EVM por actividad
+- **Contexto**: El requerimiento de Fase 5 solicitó una gráfica Recharts para contrastar Valor Planificado (PV), Valor Ganado (EV) y Costo Real (AC) por actividad, permitiendo barras agrupadas o líneas según criterio técnico justificado.
+- **Identificación y Decisión adoptada**: Se implementó una gráfica de **barras agrupadas**. En gestión de proyectos tradicional (EVM acumulativo en el tiempo), las líneas son adecuadas para curvas S continuas de fechas. Sin embargo, en el desglose granular por actividades del desafío, cada actividad es una unidad de trabajo discreta e independiente (ej. "Diseño", "Base de Datos", "Facturación"). Un gráfico de líneas implicaría falsamente una continuidad temporal o interpolación secuencial entre actividades. Las barras agrupadas contrastan con total honestidad matemática la tríada (PV en azul, EV en verde y AC en ámbar) para cada entrega de forma visual e intuitiva.
+
+### Corrección de Proceso Gitflow: Integración vía Pull Requests en GitHub
+- **Incidente en Fase 1**: La rama `feature/data-models` fue integrada a `develop` mediante un comando de merge local con `--no-ff`.
+- **Corrección**: El usuario señaló que el enunciado de Trycore exige: *"Cada feature debe integrarse a develop mediante un Pull Request, aunque trabajes solo"*. Se documenta este error de proceso con total transparencia y se adopta la regla estricta: desde la Fase 2 (`feature/evm-engine`), cada rama de característica se publica en GitHub, se crea un Pull Request real mediante `gh pr create`, y se fusiona a `develop` mediante `gh pr merge`.
+
+### Desviación de Proceso Gitflow en PR #4: Squash Merge involuntario y restablecimiento de Merge Commits
+- **Incidente en PR #4**: Al completar la Fase 4 (`feature/openapi-docs`), la integración del Pull Request #4 hacia `develop` se ejecutó mediante un comando de squash merge (`gh pr merge 4 --squash`) en lugar de generar un merge commit estándar (`--merge` / `--no-ff`). En consecuencia, los commits individuales de la rama se compactaron en un único commit con el título por defecto `feat: Add complete OpenAPI 3.0 spec for 8 REST operations with error schemas and Swagger UI (#4)` (hash `099095f`).
+- **Causa raíz**: Omisión de la bandera de estrategia explícita `--merge` en la instrucción de ejecución o adopción de la opción squash preseleccionada en el CLI de GitHub.
+- **Impacto en el historial**: Si bien el código resultante, los tests y la funcionalidad de OpenAPI y Supabase quedaron íntegros y validados en `develop`, se perdió la granularidad individual de los commits de la rama en el grafo de Git (`git log --graph`), contrastando visualmente con los merge commits explícitos de los PRs #1, #2 y #3.
+- **Corrección adoptada**: Conforme a la buena práctica de no reescribir la historia pública de Git una vez compartida en el repositorio remoto, se mantuvo el commit sin forzar un rebase destructivo y se aplicó la disciplina estricta a partir de la Fase 5: el PR #5 (`feature/dashboard-ui`) se integró explícitamente con merge commit tradicional (`Merge pull request #5 from JononathanRincon/feature/dashboard-ui`, commit `ea97698`), preservando la trazabilidad de Gitflow.
+
 ---
 
 ## 5. Decisión de Arquitectura Independiente
@@ -272,4 +586,11 @@ Para validar la comprensión antes de escribir código, se realizó un ejercicio
 
 ## 6. Reflexión Honesta: ¿Qué haría diferente?
 
-*(Se completará al culminar la implementación y el despliegue final)*
+1. **Disciplina estricta en las banderas del CLI de GitHub (`gh pr merge`)**:
+   - *Lección aprendida*: La integración del PR #4 mediante `--squash` demostró que asumir el comportamiento por defecto de herramientas CLI puede romper convenciones de equipo (Gitflow con merge commits obligatorios). En un proyecto productivo o colaborativo, configuraría reglas de protección de rama en GitHub (`Require linear history` desactivado, y restringir las opciones de merge del repositorio exclusivamente a *Allow merge commits*, deshabilitando *Squash merging* y *Rebase merging* a nivel de configuración de repositorio).
+
+2. **Gestión preventiva de secretos y variables de entorno**:
+   - *Lección aprendida*: La exposición temporal de una credencial de base de datos en un prompt interactivo (que motivó su inmediata rotación y reemplazo por `[REDACTADO POR SEGURIDAD]`) resalta la importancia de adoptar desde el primer minuto un gestor de secretos o herramientas locales como `dotenv-vault` o el CLI de Doppler/Supabase (`supabase link`), evitando manipular contraseñas directamente en mensajes o prompts compartidos con agentes de IA.
+
+3. **Pruebas End-to-End (Playwright / Cypress) automatizadas para la UI**:
+   - *Lección aprendida*: Aunque la suite de pruebas unitarias y de integración cuenta con 55 tests automáticos en Vitest cubriendo el 100% del motor EVM, los servicios de aplicación y las API routes, la interacción visual del dashboard (apertura de modales, refresco al vuelo de Recharts) se validó de forma manual y mediante pruebas de componentes con testing-library. Incorporar pruebas E2E automatizadas con Playwright habría cerrado el ciclo de aseguramiento de calidad de forma 100% desatendida.

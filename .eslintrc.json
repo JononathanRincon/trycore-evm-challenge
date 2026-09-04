@@ -1,5 +1,6 @@
 {
   "extends": ["next/core-web-vitals"],
+  "ignorePatterns": [".agents/**", "node_modules/**", ".next/**", "dist/**"],
   "rules": {
     "no-unused-vars": [
       "error",
