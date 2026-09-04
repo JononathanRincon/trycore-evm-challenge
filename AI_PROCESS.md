@@ -129,6 +129,12 @@ Despliega la aplicación en Vercel siguiendo las buenas prácticas del skill `ve
 ## INPUT
 
 leer el pdf Ingeniero de Desarrollo — Trycore Colombia (1) y validad que se cumpla cada punto que se menciona en el documento sino agregarlo 
+
+---
+
+### Nota para ti (no para el agente)
+
+Recuerda ir copiando **textualmente y en orden cronológico** cada prompt que le envíes al agente (incluyendo este) dentro de `AI_PROCESS.md` — es un requisito explícito de la prueba, y ya viste que penalizan los resúmenes o paráfrasis. También anota ahí, apenas ocurran: las dos decisiones donde no sigas lo que sugiera el agente, cómo verificaste que los cálculos EVM son correctos (con un ejemplo numérico a mano, no solo "el test pasó"), y la decisión de arquitectura que tomaste tú de forma independiente (por ejemplo, el cambio de stack a Next.js que ya quedó justificado arriba).
 ```
 
 ### Prompt 2 (Instrucciones de Seguridad de Repositorio, Remoto y Corrección Matemática de EVM):
@@ -222,6 +228,16 @@ desarrollo de la fase en curso.
 Confirmado. Procede con la Fase 0. Verifica que el .gitignore incluya también node_modules, .next y .env, y revisa si el remoto ya tiene commits antes de hacer push.
 ```
 
+### Prompt 4 (Confirmación de Arquitectura de calculateProjectEvm y Paso a Fase 1):
+```markdown
+Aprobado. Antes de Fase 1: confirma que calculateProjectEvm (agregación consolidada) vive en core/evm/evm.calculator.ts y no en project.service.ts, crea .env.example, y muéstrame los 3 prompts ya transcritos en AI_PROCESS.md. Luego procede con el schema de Prisma y los contratos REST en feature/data-models.
+```
+
+### Prompt 5 (Aclaraciones previas a merge de Fase 1):
+```markdown
+No apruebo aún el merge. Antes: (1) reemplaza el Prompt 1 del AI_PROCESS.md por el texto completo y literal, sin resumir ni usar placeholders — pégalo entero aunque sea largo. (2) Decide y documenta: Float con toBeCloseTo en tests, o Decimal de Prisma para bac/actualCost — dime cuál eliges y por qué. (3) Confirma que el redondeo a 4 decimales ocurre solo al serializar la respuesta, no dentro de evm.calculator.ts. (4) Define el shape estándar de error de validación 400. Con eso resuelto, procede con el commit en feature/data-models y merge a develop.
+```
+
 ---
 
 ## 3. Aprendizaje y Validación de EVM
@@ -260,6 +276,12 @@ Para validar la comprensión antes de escribir código, se realizó un ejercicio
 ### Decisión 2: No persistir métricas EVM en la base de datos (Persistencia vs. Cálculo al vuelo)
 - **Lo que la IA evaluó**: Considerar campos `pv`, `ev`, `cpi`, `spi` en la tabla `activities` del esquema Prisma.
 - **Por qué se tomó un camino diferente**: En bases de datos relacionales, almacenar datos derivados viola la 3ra Forma Normal (3NF) y genera riesgo de datos desincronizados. Si el usuario actualiza el $AC$, pero falla la actualización del $CPI$ guardado, la base de datos queda corrupta. El cálculo debe ser una función pura en la capa de dominio ejecutada al vuelo en cada lectura.
+
+### Decisión 3: Uso de `Float` en Prisma con `toBeCloseTo` en pruebas vs. `Decimal`
+- **Opciones evaluadas**: 
+  1. `Decimal` de Prisma (`decimal.js`): Ofrece precisión fija sin imprecisión binaria, pero añade fricción severa: los objetos `Decimal` requieren métodos específicos (`.plus()`, `.div()`), no se serializan a JSON de forma plana sin mappers custom en Next.js, y chocan con librerías de UI como Recharts y validadores Zod.
+  2. `Float` (IEEE 754 64-bit `number` nativo de JS/TS): Tipos primitivos transparentes, cero dependencias en el core matemático, serialización JSON nativa y aserciones matemáticas en pruebas con `toBeCloseTo(expected, 4)` para ratios periódicos (ej. $CPI = 4000/6000$).
+- **Decisión adoptada**: Se adopta `Float` en el esquema de Prisma y en las interfaces de TypeScript. El core matemático opera con números de 64 bits a precisión completa, y el redondeo a 4 decimales se delega exclusivamente a la serialización del DTO de respuesta para presentación.
 
 ---
 
