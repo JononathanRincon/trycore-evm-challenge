@@ -377,6 +377,78 @@ Al terminar responde con la línea "HITO DE PARADA: /api-docs visible" y
 espera mi confirmación antes de tocar Fase 5.
 ```
 
+### Prompt 15 (Verificación de falso negativo en Swagger UI y cierre de Fase 4):
+```markdown
+Antes de cerrar la Fase 4 y avanzar, necesito que resuelvas una inconsistencia
+en la validación:
+
+El log de verificación automática de /api-docs reporta:
+  GET /api-docs status: 200
+  Swagger UI container rendered: false
+
+Necesito saber la causa real, no una suposición:
+
+1. Explícame por qué el chequeo automatizado reporta "rendered: false" —
+   ¿es un falso negativo esperado por ser ssr:false (el check solo lee HTML
+   estático antes de la hidratación de React), o es un problema real donde
+   Swagger UI no carga en el navegador?
+2. Para descartarlo con certeza, dime cómo verificarlo yo manualmente:
+   abriendo http://localhost:3000/api-docs en el navegador, ¿debería ver la
+   interfaz completa de Swagger UI (con los 8 endpoints listados y el botón
+   "Try it out")? Voy a abrirlo yo mismo y confirmarte lo que veo.
+3. Si es un falso negativo del script de verificación, ajusta el script para
+   que espere a la hidratación (o valide contra un selector que solo aparece
+   post-render) en vez de reportar un estado engañoso.
+4. Si es un problema real, corrígelo y vuelve a correr la verificación hasta
+   que "rendered: true" sea consistente con lo que yo veo en el navegador.
+
+No des la Fase 4 por cerrada hasta que esto quede resuelto y yo confirme
+visualmente que Swagger UI carga correctamente.
+```
+
+### Prompt 16 (Aprobación de Fase 4 y requisitos estrictos para Fase 5):
+```markdown
+Fase 4 confirmada y cerrada: verifiqué manualmente /api-docs en el navegador,
+Swagger UI carga completo con los 8 endpoints, "Try it out" funciona contra
+Supabase, y los casos borde (cpi/spi/eac/vac null) quedan documentados en los
+schemas.
+
+Avanza a Fase 5 — Dashboard frontend. Rama feature/dashboard-ui.
+
+Requisitos estrictos según PLAN.md y el desafío original:
+
+1. Formulario de creación/edición de actividades (nombre, BAC, % planificado,
+   % completado, AC) con validación en cliente (no permitir negativos, no
+   permitir % fuera de 0-100) — reutiliza los mismos límites que ya validan
+   las API routes, no dupliques reglas distintas.
+2. Tabla de actividades por proyecto con sus indicadores calculados (PV, EV,
+   CV, SV, CPI, SPI, EAC, VAC) consumidos directamente de la respuesta real
+   de la API (nada de recalcular en el frontend).
+3. Sección de indicadores consolidados del proyecto, con el mismo criterio.
+4. Indicador visual (badge o semáforo) de estado CPI/SPI:
+   - Verde: CPI≥1 y SPI≥1
+   - Amarillo: uno de los dos <1
+   - Rojo: ambos <1
+   Usa costInterpretation/scheduleInterpretation ya devueltos por la API como
+   texto del badge, no textos nuevos inventados en el frontend.
+5. Gráfica Recharts comparando PV, EV y AC por actividad (barras agrupadas o
+   líneas, tu criterio — indícame en una línea por qué elegiste ese tipo).
+6. Maneja explícitamente en la UI el caso borde de CPI/SPI/EAC/VAC = null (ej.
+   mostrar "N/A" en vez de romper el render o mostrar "null").
+7. Prioriza claridad: cualquiera debe entender de un vistazo si el proyecto
+   va bien o mal, sin necesitar leer números crudos.
+
+No uses lógica de negocio en los componentes — solo consumo de la API y
+presentación. Si necesitas transformar datos para la gráfica, hazlo en un
+helper aislado y testeable, no inline en el componente.
+
+Commits descriptivos en feature/dashboard-ui, PR a develop al terminar.
+Antes de darlo por cerrado, confírmame explícitamente que probaste el
+formulario creando/editando una actividad real (con datos reales, no
+placeholders) y que la tabla/gráfica se actualizan correctamente al vuelo —
+no solo que compila.
+```
+
 ---
 
 ## 3. Aprendizaje y Validación de EVM
@@ -429,6 +501,10 @@ Para validar la comprensión antes de escribir código, se realizó un ejercicio
 ### Decisión 5: Adopción de Supabase como proveedor gestionado de PostgreSQL para desarrollo y producción
 - **Contexto**: El plan inicial contemplaba Neon / Vercel Postgres.
 - **Identificación y Decisión adoptada**: Se seleccionó Supabase como proveedor de PostgreSQL serverless gestionado. Representa la misma naturaleza relacional estándar de PostgreSQL sin impacto en las entidades de Prisma ni en la lógica de negocio. Para garantizar compatibilidad óptima con Prisma y serverless, se configuró el datasource con arquitectura de doble URL en `prisma/schema.prisma`: `DATABASE_URL` apuntando al Transaction-Mode pooler (puerto 6543 con PgBouncer) para las consultas de la aplicación, y `DIRECT_URL` apuntando al Session-Mode pooler (puerto 5432) para la ejecución segura de migraciones DDL (`prisma migrate dev`).
+
+### Decisión 6: Elección de gráfico de barras agrupadas vs. líneas para la comparativa EVM por actividad
+- **Contexto**: El requerimiento de Fase 5 solicitó una gráfica Recharts para contrastar Valor Planificado (PV), Valor Ganado (EV) y Costo Real (AC) por actividad, permitiendo barras agrupadas o líneas según criterio técnico justificado.
+- **Identificación y Decisión adoptada**: Se implementó una gráfica de **barras agrupadas**. En gestión de proyectos tradicional (EVM acumulativo en el tiempo), las líneas son adecuadas para curvas S continuas de fechas. Sin embargo, en el desglose granular por actividades del desafío, cada actividad es una unidad de trabajo discreta e independiente (ej. "Diseño", "Base de Datos", "Facturación"). Un gráfico de líneas implicaría falsamente una continuidad temporal o interpolación secuencial entre actividades. Las barras agrupadas contrastan con total honestidad matemática la tríada (PV en azul, EV en verde y AC en ámbar) para cada entrega de forma visual e intuitiva.
 
 ### Corrección de Proceso Gitflow: Integración vía Pull Requests en GitHub
 - **Incidente en Fase 1**: La rama `feature/data-models` fue integrada a `develop` mediante un comando de merge local con `--no-ff`.
