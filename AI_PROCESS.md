@@ -307,6 +307,76 @@ Aprobado el patrón de controller y service. Antes de los tests de integración:
 Aprobado — el log real confirma los 36 tests y la separación 400/500. Antes de crear el PR: agrega un test de integración para PUT /api/activities/:id que confirme 400 Bad Request cuando se envía un valor inválido (ej. actualCost negativo o plannedProgress > 100), ya que ese caso no aparece en el log actual aunque sí existe para la creación. Con ese test agregado, procede a crear el PR #3.
 ```
 
+### Prompt 13 (Aprobación de merge de PR #3 y confirmación de endpoints para OpenAPI):
+```markdown
+Aprobado el merge del PR #3. PLAN.md — Fase 4 citada correctamente.
+
+Autorizo crear la rama feature/openapi-docs y proceder con:
+1. Especificación OpenAPI 3.0 tipada en src/infrastructure/docs/openapi.spec.ts
+2. Endpoint JSON en src/app/api/docs/route.ts
+3. Página Swagger UI en src/app/api-docs/page.tsx con swagger-ui-react,
+   cargado como Client Component (ssr: false) siguiendo el patrón de
+   composición de vercel-react-best-practices para este caso puntual.
+Antes de generar migraciones o escribir código: confírmame el listado
+completo de los 7 endpoints que vas a documentar en el spec OpenAPI
+(método + ruta + tag), para revisar que ninguno quede fuera antes de
+que escribas el archivo completo.
+
+Cuando termines, muéstrame el spec OpenAPI completo (no un resumen) antes
+de integrarlo a develop.
+```
+
+### Prompt 14 (Aprobación de 8 operaciones para OpenAPI y ejecución de Fase 4):
+```markdown
+Confirmado: incluimos las 8 operaciones completas en el spec OpenAPI, no 7.
+DECISIÓN: el contrato documentado debe reflejar el 100% de la superficie real
+de la API — un spec que omite DELETE /api/activities/{id} es documentación
+incompleta. Regístralo así en AI_PROCESS.md.
+
+Procede con Fase 4 completa:
+
+1. Crea la rama feature/openapi-docs desde develop.
+
+2. Genera el spec OpenAPI 3.0 completo en
+   src/infrastructure/docs/openapi.spec.ts para las 8 operaciones (5 Projects +
+   3 Activities). Para CADA una:
+   - summary y description en español, orientados a negocio.
+   - requestBody con schema tipado vía $ref a componentes reutilizables
+     (Project, Activity, ActivityEvmMetrics, ProjectEvmConsolidated,
+     ErrorResponse) — no repitas definiciones inline.
+   - responses documentadas para 200/201, 400 (validación: BAC negativo, % fuera
+     de 0-100), 404 (proyecto/actividad inexistente) y 500 (error no controlado).
+   - En los endpoints que devuelven EVM (GET /api/projects/{id},
+     POST .../activities, PUT /api/activities/{id}): ejemplo numérico real con
+     PV, EV, CV, SV, CPI, SPI, EAC, VAC e interpretación textual — nada de
+     placeholders tipo "string".
+
+3. Documenta explícitamente en los schemas los 3 casos borde: qué retorna el
+   API cuando AC=0 (sé consistente con lo que ya devuelve el service EVM de
+   Fase 2 — ¿null? ¿"N/A"?), cuando el proyecto no tiene actividades (agregados
+   en 0/null, no error), y que avance real = 0% es válido, no un error.
+
+4. Monta Swagger UI en /api-docs. Valida que el spec no tenga errores de
+   schema (swagger-cli validate o el propio Swagger UI).
+
+5. Cero magic strings/numbers en el spec: status codes, tags y mensajes de
+   error repetidos van a components/responses.
+
+6. Commit imperativo y descriptivo, ej.:
+   "Add complete OpenAPI 3.0 spec for 8 REST operations with error schemas"
+
+7. Abre PR feature/openapi-docs → develop y haz el merge.
+
+VALIDACIÓN OBLIGATORIA antes de dar la fase por cerrada — muéstrame evidencia de:
+a) /api-docs carga sin errores de consola ni de validación.
+b) Las 8 operaciones aparecen, agrupadas en Projects (5) y Activities (3).
+c) Un "Try it out" contra un GET real funciona contra la base de datos.
+d) git log --oneline con el commit imperativo y el merge del PR.
+
+Al terminar responde con la línea "HITO DE PARADA: /api-docs visible" y
+espera mi confirmación antes de tocar Fase 5.
+```
+
 ---
 
 ## 3. Aprendizaje y Validación de EVM
@@ -351,6 +421,14 @@ Para validar la comprensión antes de escribir código, se realizó un ejercicio
   1. `Decimal` de Prisma (`decimal.js`): Ofrece precisión fija sin imprecisión binaria, pero añade fricción severa: los objetos `Decimal` requieren métodos específicos (`.plus()`, `.div()`), no se serializan a JSON de forma plana sin mappers custom en Next.js, y chocan con librerías de UI como Recharts y validadores Zod.
   2. `Float` (IEEE 754 64-bit `number` nativo de JS/TS): Tipos primitivos transparentes, cero dependencias en el core matemático, serialización JSON nativa y aserciones matemáticas en pruebas con `toBeCloseTo(expected, 4)` para ratios periódicos (ej. $CPI = 4000/6000$).
 - **Decisión adoptada**: Se adopta `Float` en el esquema de Prisma y en las interfaces de TypeScript. El core matemático opera con números de 64 bits a precisión completa, y el redondeo a 4 decimales se delega exclusivamente a la serialización del DTO de respuesta para presentación.
+
+### Decisión 4: Cobertura del 100% de la superficie de la API en la especificación OpenAPI (8 endpoints vs. 7)
+- **Contexto**: En la solicitud inicial de Fase 4, se hizo mención a "7 endpoints".
+- **Identificación y Decisión adoptada**: El análisis riguroso de la superficie de la API arrojó 8 operaciones REST implementadas (`5` en Projects + `3` en Activities, incluyendo `DELETE /api/activities/{id}`). Se tomó la decisión explícita de incluir las 8 operaciones completas en el contrato OpenAPI 3.0. Un contrato documentado que omite operaciones reales existentes (como la eliminación de actividades) constituye una especificación incompleta y rompe el principio de verdad única entre implementación y documentación.
+
+### Decisión 5: Adopción de Supabase como proveedor gestionado de PostgreSQL para desarrollo y producción
+- **Contexto**: El plan inicial contemplaba Neon / Vercel Postgres.
+- **Identificación y Decisión adoptada**: Se seleccionó Supabase como proveedor de PostgreSQL serverless gestionado. Representa la misma naturaleza relacional estándar de PostgreSQL sin impacto en las entidades de Prisma ni en la lógica de negocio. Para garantizar compatibilidad óptima con Prisma y serverless, se configuró el datasource con arquitectura de doble URL en `prisma/schema.prisma`: `DATABASE_URL` apuntando al Transaction-Mode pooler (puerto 6543 con PgBouncer) para las consultas de la aplicación, y `DIRECT_URL` apuntando al Session-Mode pooler (puerto 5432) para la ejecución segura de migraciones DDL (`prisma migrate dev`).
 
 ### Corrección de Proceso Gitflow: Integración vía Pull Requests en GitHub
 - **Incidente en Fase 1**: La rama `feature/data-models` fue integrada a `develop` mediante un comando de merge local con `--no-ff`.
