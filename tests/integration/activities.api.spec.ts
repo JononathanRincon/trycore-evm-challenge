@@ -173,6 +173,37 @@ describe('Integration — Activities Routes', () => {
       const response = await updateActivity(req, { params: { id: 'act-missing' } });
       expect(response.status).toBe(404);
     });
+
+    it('debe retornar 400 Bad Request si los datos enviados son inválidos (ej. actualCost negativo o plannedProgress > 100)', async () => {
+      const req = new NextRequest('http://localhost:3000/api/activities/act-1', {
+        method: 'PUT',
+        body: JSON.stringify({ actualCost: -500, plannedProgress: 150 }),
+      });
+
+      const response = await updateActivity(req, { params: { id: 'act-1' } });
+      expect(response.status).toBe(400);
+
+      const json = await response.json();
+      expect(json.statusCode).toBe(400);
+      expect(json.error).toBe('Bad Request');
+      expect(json.details).toBeDefined();
+      const fields = json.details.map((d: any) => d.field);
+      expect(fields).toContain('actualCost');
+      expect(fields).toContain('plannedProgress');
+    });
+
+    it('debe retornar 400 Bad Request si el cuerpo no es un JSON válido en PUT', async () => {
+      const req = new NextRequest('http://localhost:3000/api/activities/act-1', {
+        method: 'PUT',
+        body: '{ malformed json',
+      });
+
+      const response = await updateActivity(req, { params: { id: 'act-1' } });
+      expect(response.status).toBe(400);
+
+      const json = await response.json();
+      expect(json.message).toBe('El cuerpo de la solicitud no es un JSON válido');
+    });
   });
 
   describe('DELETE /api/activities/:id', () => {

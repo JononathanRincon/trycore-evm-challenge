@@ -302,6 +302,11 @@ Aprobado el diseño de servicios y la garantía de integridad en updateActivity.
 Aprobado el patrón de controller y service. Antes de los tests de integración: separa el try/catch para que solo el parseo de request.json() dé 400; cualquier error no controlado del service (ej. fallo de conexión a BD) debe devolver 500, no 400. Aplica esta corrección a todas las routes ya escritas, no solo a esta, y luego procede con la suite de tests de integración.
 ```
 
+### Prompt 12 (Requisito de test de validación 400 en PUT /api/activities/:id previo a PR #3):
+```markdown
+Aprobado — el log real confirma los 36 tests y la separación 400/500. Antes de crear el PR: agrega un test de integración para PUT /api/activities/:id que confirme 400 Bad Request cuando se envía un valor inválido (ej. actualCost negativo o plannedProgress > 100), ya que ese caso no aparece en el log actual aunque sí existe para la creación. Con ese test agregado, procede a crear el PR #3.
+```
+
 ---
 
 ## 3. Aprendizaje y Validación de EVM
