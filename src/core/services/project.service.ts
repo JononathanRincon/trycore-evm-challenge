@@ -1,4 +1,3 @@
-import { prisma } from '@/infrastructure/db/prisma';
 import {
   CreateProjectInput,
   UpdateProjectInput,
@@ -7,21 +6,31 @@ import {
 } from '@/core/dto/project.dto';
 import { calculateProjectEvm } from '@/core/evm/evm.calculator';
 import { serializeConsolidatedEvm } from '@/core/evm/evm.serializer';
+import { IProjectRepository } from '@/core/repositories/project.repository.interface';
+import { PrismaProjectRepository } from '@/infrastructure/repositories/prisma-project.repository';
 import { ActivityService } from './activity.service';
 
+/**
+ * Servicio de aplicación para la gestión de Proyectos y cálculo consolidado de EVM.
+ * Sigue Clean Architecture dependiendo de la abstracción IProjectRepository.
+ */
 export class ProjectService {
+  private projectRepo: IProjectRepository;
+  private activityService: typeof ActivityService;
+
+  constructor(
+    projectRepo?: IProjectRepository,
+    activityService?: typeof ActivityService
+  ) {
+    this.projectRepo = projectRepo ?? new PrismaProjectRepository();
+    this.activityService = activityService ?? ActivityService;
+  }
+
   /**
    * Lista todos los proyectos con métricas agregadas y de rendimiento para la vista general.
    */
-  static async getAllProjects(): Promise<ProjectListItemResponse[]> {
-    const projects = await prisma.project.findMany({
-      include: {
-        activities: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+  async getAllProjects(): Promise<ProjectListItemResponse[]> {
+    const projects = await this.projectRepo.findAllWithActivities();
 
     return projects.map((project) => {
       const activityInputs = project.activities.map((a) => ({
@@ -56,17 +65,8 @@ export class ProjectService {
    * Obtiene el detalle de un proyecto por ID con todas sus actividades enriquecidas con EVM
    * y los indicadores consolidados agregados de forma segura.
    */
-  static async getProjectById(id: string): Promise<ProjectDetailResponse | null> {
-    const project = await prisma.project.findUnique({
-      where: { id },
-      include: {
-        activities: {
-          orderBy: {
-            createdAt: 'asc',
-          },
-        },
-      },
-    });
+  async getProjectById(id: string): Promise<ProjectDetailResponse | null> {
+    const project = await this.projectRepo.findByIdWithActivities(id);
 
     if (!project) {
       return null;
@@ -83,7 +83,7 @@ export class ProjectService {
     const consolidatedEvm = serializeConsolidatedEvm(rawConsolidated);
 
     const activities = project.activities.map((activity) =>
-      ActivityService.enrichActivityWithEvm(activity)
+      this.activityService.enrichActivityWithEvm(activity)
     );
 
     return {
@@ -100,54 +100,44 @@ export class ProjectService {
   /**
    * Crea un nuevo proyecto.
    */
-  static async createProject(data: CreateProjectInput) {
-    return prisma.project.create({
-      data: {
-        name: data.name,
-        description: data.description,
-      },
-    });
+  async createProject(data: CreateProjectInput) {
+    return this.projectRepo.create(data);
   }
 
   /**
    * Actualiza los datos de un proyecto.
    */
-  static async updateProject(id: string, data: UpdateProjectInput) {
-    const existing = await prisma.project.findUnique({
-      where: { id },
-      select: { id: true },
-    });
-
-    if (!existing) {
-      return null;
-    }
-
-    return prisma.project.update({
-      where: { id },
-      data: {
-        ...(data.name !== undefined && { name: data.name }),
-        ...(data.description !== undefined && { description: data.description }),
-      },
-    });
+  async updateProject(id: string, data: UpdateProjectInput) {
+    return this.projectRepo.update(id, data);
   }
 
   /**
    * Elimina un proyecto y todas sus actividades asociadas en cascada.
    */
-  static async deleteProject(id: string): Promise<boolean> {
-    const existing = await prisma.project.findUnique({
-      where: { id },
-      select: { id: true },
-    });
+  async deleteProject(id: string): Promise<boolean> {
+    return this.projectRepo.delete(id);
+  }
 
-    if (!existing) {
-      return false;
-    }
+  // --- Métodos estáticos delegados para retrocompatibilidad total ---
+  private static instance = new ProjectService();
 
-    await prisma.project.delete({
-      where: { id },
-    });
+  static getAllProjects() {
+    return ProjectService.instance.getAllProjects();
+  }
 
-    return true;
+  static getProjectById(id: string) {
+    return ProjectService.instance.getProjectById(id);
+  }
+
+  static createProject(data: CreateProjectInput) {
+    return ProjectService.instance.createProject(data);
+  }
+
+  static updateProject(id: string, data: UpdateProjectInput) {
+    return ProjectService.instance.updateProject(id, data);
+  }
+
+  static deleteProject(id: string) {
+    return ProjectService.instance.deleteProject(id);
   }
 }

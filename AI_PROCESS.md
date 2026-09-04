@@ -508,6 +508,30 @@ placeholders) y que la tabla/gráfica se actualizan correctamente al vuelo —
 no solo que compila.
 ```
 
+### Prompt 18 (Solicitud de Auditoría Técnica Integral y Recomendaciones Arquitectónicas):
+```markdown
+me realizas una auditoria de este proyecto y me das recomendaciones para mejorar la arquitectura
+```
+
+### Prompt 19 (Generación del Plan Canónico de Implementación de Mejoras con Estándares Trycore y Skills de .agents):
+```markdown
+me realizas un plan de implementacion para realizar esos cambios, por favor analiza el documento Ingeniero de Desarrollo — Trycore Colombia (1) ese plan de implementacion debe cumplir con las recomendaciones que tiene ese documento el proyecto esta desplegado en vercel y ese plan de implementacion se debe guardar en un archivo .md como plan de implementacion mejoras realizadas buenas practicas segun la auditoria que acabas de realizar y tambien tener en cuenta que skills puedes usar para esta mejoras que se encuentra en la carpeta .agent y guardar esos registros de promp en el archivo AI_PROCESS.md de las mejoras realizadas
+```
+
+### Prompt 20 (Renombramiento del Plan Canónico de Mejoras):
+```markdown
+le cambie el nombre del archivo por plan de implementacion mejoras realizadas.md
+```
+
+### Prompt 21 (Aprobación de Inicio de Mejoras y Compartición de Enlaces de Producción Vercel):
+```markdown
+si apruebo, aparte te comento que aqui tengo desplegado el aplicativo Dashboard Principal (Producción):👉 https://trycore-evm-challenge.vercel.app
+Documentación Interactiva Swagger UI:👉 https://trycore-evm-challenge.vercel.app/api-docs
+Endpoint del Spec OpenAPI 3.0 (JSON):👉 https://trycore-evm-challenge.vercel.app/api/docs
+Deployment Inspect (Vercel Console):👉 https://vercel.com/jonathanandres080-6851s-projects/trycore-evm-challenge
+y este es el token de vercel si lo necesitas del proyecto este es el token de vercel [REDACTADO POR SEGURIDAD]
+```
+
 ---
 
 ## 3. Aprendizaje y Validación de EVM
@@ -564,6 +588,14 @@ Para validar la comprensión antes de escribir código, se realizó un ejercicio
 ### Decisión 6: Elección de gráfico de barras agrupadas vs. líneas para la comparativa EVM por actividad
 - **Contexto**: El requerimiento de Fase 5 solicitó una gráfica Recharts para contrastar Valor Planificado (PV), Valor Ganado (EV) y Costo Real (AC) por actividad, permitiendo barras agrupadas o líneas según criterio técnico justificado.
 - **Identificación y Decisión adoptada**: Se implementó una gráfica de **barras agrupadas**. En gestión de proyectos tradicional (EVM acumulativo en el tiempo), las líneas son adecuadas para curvas S continuas de fechas. Sin embargo, en el desglose granular por actividades del desafío, cada actividad es una unidad de trabajo discreta e independiente (ej. "Diseño", "Base de Datos", "Facturación"). Un gráfico de líneas implicaría falsamente una continuidad temporal o interpolación secuencial entre actividades. Las barras agrupadas contrastan con total honestidad matemática la tríada (PV en azul, EV en verde y AC en ámbar) para cada entrega de forma visual e intuitiva.
+
+### Decisión 7: Adopción del Patrón Repositorio en Next.js App Router (Inversión de Dependencias)
+- **Contexto**: La auditoría identificó que `ProjectService` y `ActivityService` acoplaban la lógica de aplicación directamente al cliente de Prisma (`@/infrastructure/db/prisma`).
+- **Identificación y Decisión adoptada**: Se diseña el Patrón Repositorio con interfaces en el Core (`IProjectRepository`, `IActivityRepository`) y adaptadores en Infraestructura (`PrismaProjectRepository`, `PrismaActivityRepository`). Esto restaura el Principio de Inversión de Dependencias (DIP) de Clean Architecture, permitiendo inyectar implementaciones en memoria para pruebas unitarias sin hackeos de mockeo a nivel de módulos (`vi.mock`), y aislando al negocio de cambios en la base de datos o capas de caché.
+
+### Decisión 8: Fuente Única de Verdad (Single Source of Truth) para Validaciones con Zod y React Hook Form
+- **Contexto**: El modal de creación de actividades en el frontend duplicaba manualmente con sentencias `if/else` las mismas reglas de validación (rango 0-100, no negatividad de costos, límites de caracteres) ya definidas en `src/core/dto/activity.dto.ts`.
+- **Identificación y Decisión adoptada**: Integrar `react-hook-form` con `@hookform/resolvers/zod` consumiendo directamente el schema `CreateActivitySchema`. Esto elimina código redundante (DRY), garantiza coherencia absoluta entre cliente y servidor, y previene que una actualización de reglas en backend quede desfasada en el frontend.
 
 ### Corrección de Proceso Gitflow: Integración vía Pull Requests en GitHub
 - **Incidente en Fase 1**: La rama `feature/data-models` fue integrada a `develop` mediante un comando de merge local con `--no-ff`.
