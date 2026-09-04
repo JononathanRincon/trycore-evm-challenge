@@ -282,6 +282,26 @@ resultado de la comparación del punto 2 antes de continuar con cualquier
 desarrollo nuevo.
 ```
 
+### Prompt 8 (Inicio de Fase 3: Pruebas unitarias primero antes de API routes):
+```markdown
+Confirmado el PLAN.md citado. Autorizo crear feature/api-routes-and-tests, pero divide el trabajo: primero implementa y corre la suite de tests unitarios (los 7 casos citados) y muéstrame el resultado de npm test antes de escribir ninguna API route. Cuando esos tests pasen, seguimos con los endpoints y sus tests de integración.
+```
+
+### Prompt 9 (Aprobación de tests y solicitud de diseño de servicios):
+```markdown
+Aprobado -> cobertura y lint verificados limpios desde cero. Procede con project.service.ts, activity.service.ts, las API routes y sus tests de integración. Recuerda seguir dividiendo el trabajo: muéstrame primero los services y su diseño antes de escribir las routes, y cita la sección de PLAN.md que estés ejecutando en cada paso.
+```
+
+### Prompt 10 (Aprobación de diseño de servicios y solicitud de código de rutas):
+```markdown
+Aprobado el diseño de servicios y la garantía de integridad en updateActivity. Procede con las API Routes. Cuando las tengas, muéstrame el código completo de createActivity (servicio) y al menos una route completa (por ejemplo POST /api/projects/:id/activities) para verificar el manejo de errores y que los controllers queden delgados
+```
+
+### Prompt 11 (Separación de bloques try/catch en controllers: 400 exclusivo para JSON parse y 500 para fallos no controlados):
+```markdown
+Aprobado el patrón de controller y service. Antes de los tests de integración: separa el try/catch para que solo el parseo de request.json() dé 400; cualquier error no controlado del service (ej. fallo de conexión a BD) debe devolver 500, no 400. Aplica esta corrección a todas las routes ya escritas, no solo a esta, y luego procede con la suite de tests de integración.
+```
+
 ---
 
 ## 3. Aprendizaje y Validación de EVM
