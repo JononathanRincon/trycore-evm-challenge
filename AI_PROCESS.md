@@ -377,7 +377,66 @@ Al terminar responde con la línea "HITO DE PARADA: /api-docs visible" y
 espera mi confirmación antes de tocar Fase 5.
 ```
 
-### Prompt 15 (Verificación de falso negativo en Swagger UI y cierre de Fase 4):
+### Prompt 15 (Transición a Supabase PostgreSQL y Configuración de Datasource):
+```markdown
+DECISIÓN: cambiamos de Neon a Supabase como proveedor de PostgreSQL para
+desarrollo. Misma naturaleza (Postgres serverless gestionado), sin impacto
+en el modelo de datos ni en Prisma. Documenta este cambio en AI_PROCESS.md
+como desviación menor de la decisión de stack original.
+
+1. Instala Prisma como devDependency si no está ya:
+   npm install prisma --save-dev
+
+2. Verifica que .env está en .gitignore. Si no lo está, agrégalo ANTES de
+   crear el archivo — no continúes sin esto confirmado.
+
+3. Crea el archivo .env (no .env.example) con estas dos variables. Voy a
+   reemplazar el password yo mismo directamente en el archivo después de
+   que lo crees con el placeholder:
+
+# Connect to Postgres via the shared transaction-mode pooler (IPv4-only)
+DATABASE_URL="postgresql://postgres.anbrjhahmbjdoyfphmds:[YOUR-PASSWORD]@aws-0-us-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
+
+# Connect to Postgres via the shared session-mode pooler (used for migrations)
+DIRECT_URL="postgresql://postgres.anbrjhahmbjdoyfphmds:[YOUR-PASSWORD]@aws-0-us-west-2.pooler.supabase.com:5432/postgres"
+la contraseña es [REDACTADO POR SEGURIDAD]
+valida si se logra conectar? sino mencionalo primero
+
+4. Actualiza prisma/schema.prisma para que el datasource use ambas
+   variables (pooler para queries en runtime, directUrl para migraciones):
+
+   datasource db {
+     provider  = "postgresql"
+     url       = env("DATABASE_URL")
+     directUrl = env("DIRECT_URL")
+   }
+
+5. NO corras prisma init si ya existe prisma/schema.prisma — verifica
+   primero que no sobrescribas el schema con las entidades Project/Activity
+   ya modeladas en Fase 1. Si el archivo ya existe, solo edita el bloque
+   datasource.
+
+6. Una vez confirme que reemplacé el password real en .env, corre:
+   npx prisma migrate dev --name init
+   Esto debe usar DIRECT_URL (puerto 5432, session mode) para la migración.
+
+7. Corre o crea el script de seed con al menos 1 proyecto y 3 actividades
+   (necesario para la demo del video).
+
+8. Verifica conectividad real: vuelve a correr el chequeo de getAllProjects()
+   contra la DB. Repórtame el conteo de proyectos, sin exponer credenciales.
+
+9. Repite GET /api/projects contra localhost:3000 y confírmame el 200 real
+   con body. Luego valida el "Try it out" desde /api-docs.
+
+No avances a git add/commit/PR hasta que confirmes el 200 real con datos.
+
+NO instales ni ejecutes paquetes npx adicionales (como skills de terceros)
+sin que yo los autorice explícitamente primero.
+```
+> *Nota de seguridad*: Se reemplazó la credencial sensible original por `[REDACTADO POR SEGURIDAD]`. Dicha credencial fue expuesta temporalmente en el prompt y rotada inmediatamente tras la interacción; se omite del registro histórico por buenas prácticas de seguridad de la información. El resto del prompt se mantiene textual.
+
+### Prompt 16 (Verificación de falso negativo en Swagger UI y cierre de Fase 4):
 ```markdown
 Antes de cerrar la Fase 4 y avanzar, necesito que resuelvas una inconsistencia
 en la validación:
@@ -406,7 +465,7 @@ No des la Fase 4 por cerrada hasta que esto quede resuelto y yo confirme
 visualmente que Swagger UI carga correctamente.
 ```
 
-### Prompt 16 (Aprobación de Fase 4 y requisitos estrictos para Fase 5):
+### Prompt 17 (Aprobación de Fase 4 y requisitos estrictos para Fase 5):
 ```markdown
 Fase 4 confirmada y cerrada: verifiqué manualmente /api-docs en el navegador,
 Swagger UI carga completo con los 8 endpoints, "Try it out" funciona contra
@@ -510,6 +569,12 @@ Para validar la comprensión antes de escribir código, se realizó un ejercicio
 - **Incidente en Fase 1**: La rama `feature/data-models` fue integrada a `develop` mediante un comando de merge local con `--no-ff`.
 - **Corrección**: El usuario señaló que el enunciado de Trycore exige: *"Cada feature debe integrarse a develop mediante un Pull Request, aunque trabajes solo"*. Se documenta este error de proceso con total transparencia y se adopta la regla estricta: desde la Fase 2 (`feature/evm-engine`), cada rama de característica se publica en GitHub, se crea un Pull Request real mediante `gh pr create`, y se fusiona a `develop` mediante `gh pr merge`.
 
+### Desviación de Proceso Gitflow en PR #4: Squash Merge involuntario y restablecimiento de Merge Commits
+- **Incidente en PR #4**: Al completar la Fase 4 (`feature/openapi-docs`), la integración del Pull Request #4 hacia `develop` se ejecutó mediante un comando de squash merge (`gh pr merge 4 --squash`) en lugar de generar un merge commit estándar (`--merge` / `--no-ff`). En consecuencia, los commits individuales de la rama se compactaron en un único commit con el título por defecto `feat: Add complete OpenAPI 3.0 spec for 8 REST operations with error schemas and Swagger UI (#4)` (hash `099095f`).
+- **Causa raíz**: Omisión de la bandera de estrategia explícita `--merge` en la instrucción de ejecución o adopción de la opción squash preseleccionada en el CLI de GitHub.
+- **Impacto en el historial**: Si bien el código resultante, los tests y la funcionalidad de OpenAPI y Supabase quedaron íntegros y validados en `develop`, se perdió la granularidad individual de los commits de la rama en el grafo de Git (`git log --graph`), contrastando visualmente con los merge commits explícitos de los PRs #1, #2 y #3.
+- **Corrección adoptada**: Conforme a la buena práctica de no reescribir la historia pública de Git una vez compartida en el repositorio remoto, se mantuvo el commit sin forzar un rebase destructivo y se aplicó la disciplina estricta a partir de la Fase 5: el PR #5 (`feature/dashboard-ui`) se integró explícitamente con merge commit tradicional (`Merge pull request #5 from JononathanRincon/feature/dashboard-ui`, commit `ea97698`), preservando la trazabilidad de Gitflow.
+
 ---
 
 ## 5. Decisión de Arquitectura Independiente
@@ -521,4 +586,11 @@ Para validar la comprensión antes de escribir código, se realizó un ejercicio
 
 ## 6. Reflexión Honesta: ¿Qué haría diferente?
 
-*(Se completará al culminar la implementación y el despliegue final)*
+1. **Disciplina estricta en las banderas del CLI de GitHub (`gh pr merge`)**:
+   - *Lección aprendida*: La integración del PR #4 mediante `--squash` demostró que asumir el comportamiento por defecto de herramientas CLI puede romper convenciones de equipo (Gitflow con merge commits obligatorios). En un proyecto productivo o colaborativo, configuraría reglas de protección de rama en GitHub (`Require linear history` desactivado, y restringir las opciones de merge del repositorio exclusivamente a *Allow merge commits*, deshabilitando *Squash merging* y *Rebase merging* a nivel de configuración de repositorio).
+
+2. **Gestión preventiva de secretos y variables de entorno**:
+   - *Lección aprendida*: La exposición temporal de una credencial de base de datos en un prompt interactivo (que motivó su inmediata rotación y reemplazo por `[REDACTADO POR SEGURIDAD]`) resalta la importancia de adoptar desde el primer minuto un gestor de secretos o herramientas locales como `dotenv-vault` o el CLI de Doppler/Supabase (`supabase link`), evitando manipular contraseñas directamente en mensajes o prompts compartidos con agentes de IA.
+
+3. **Pruebas End-to-End (Playwright / Cypress) automatizadas para la UI**:
+   - *Lección aprendida*: Aunque la suite de pruebas unitarias y de integración cuenta con 55 tests automáticos en Vitest cubriendo el 100% del motor EVM, los servicios de aplicación y las API routes, la interacción visual del dashboard (apertura de modales, refresco al vuelo de Recharts) se validó de forma manual y mediante pruebas de componentes con testing-library. Incorporar pruebas E2E automatizadas con Playwright habría cerrado el ciclo de aseguramiento de calidad de forma 100% desatendida.
