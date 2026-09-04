@@ -532,6 +532,16 @@ Deployment Inspect (Vercel Console):👉 https://vercel.com/jonathanandres080-68
 y este es el token de vercel si lo necesitas del proyecto este es el token de vercel [REDACTADO POR SEGURIDAD]
 ```
 
+### Prompt 22 (Validación de Conformidad con Gitflow según Prueba Técnica):
+```markdown
+okey el gitflow quedo como se menciona en la prueba tecnica
+```
+
+### Prompt 23 (Aprobación y Solicitud de Ejecución de la Fase 2: Handlers HTTP y DRY):
+```markdown
+si veo todo fue cumplido exitosamente, continuemos con la fase 2
+```
+
 ---
 
 ## 3. Aprendizaje y Validación de EVM

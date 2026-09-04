@@ -1,34 +1,21 @@
-import { NextRequest } from 'next/server';
 import { ProjectService } from '@/core/services/project.service';
-import { CreateProjectSchema } from '@/core/dto/project.dto';
+import { CreateProjectSchema, CreateProjectInput } from '@/core/dto/project.dto';
 import { ApiResponse } from '@/infrastructure/http/api-response';
+import { createApiHandler } from '@/infrastructure/http/api-handler';
 
-export async function GET() {
-  try {
+export const GET = createApiHandler({
+  defaultErrorMessage: 'Error al obtener la lista de proyectos',
+  handler: async () => {
     const projects = await ProjectService.getAllProjects();
     return ApiResponse.success(projects);
-  } catch (_error) {
-    return ApiResponse.internalError('Error al obtener la lista de proyectos');
-  }
-}
+  },
+});
 
-export async function POST(request: NextRequest) {
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch (_error) {
-    return ApiResponse.badRequest('El cuerpo de la solicitud no es un JSON válido');
-  }
-
-  const validation = CreateProjectSchema.safeParse(body);
-  if (!validation.success) {
-    return ApiResponse.validationError(validation.error);
-  }
-
-  try {
-    const created = await ProjectService.createProject(validation.data);
+export const POST = createApiHandler<CreateProjectInput>({
+  schema: CreateProjectSchema,
+  defaultErrorMessage: 'Error interno al crear el proyecto',
+  handler: async ({ body }) => {
+    const created = await ProjectService.createProject(body);
     return ApiResponse.created(created);
-  } catch (_error) {
-    return ApiResponse.internalError('Error interno al crear el proyecto');
-  }
-}
+  },
+});
