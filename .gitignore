@@ -41,3 +41,5 @@ Thumbs.db
 # Keep migrations, but ignore local sqlite if used
 *.db
 *.db-journal
+
+.vercel
