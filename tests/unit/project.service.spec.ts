@@ -1,8 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { ProjectService } from '@/core/services/project.service';
 import {
   IProjectRepository,
   ProjectWithActivities,
+  FindProjectsParams,
 } from '@/core/repositories/project.repository.interface';
 import { CreateProjectInput, UpdateProjectInput } from '@/core/dto/project.dto';
 
@@ -10,8 +11,19 @@ import { CreateProjectInput, UpdateProjectInput } from '@/core/dto/project.dto';
 class InMemoryProjectRepository implements IProjectRepository {
   public projects: ProjectWithActivities[] = [];
 
-  async findAllWithActivities(): Promise<ProjectWithActivities[]> {
-    return this.projects;
+  async findAllWithActivities(params?: FindProjectsParams): Promise<ProjectWithActivities[]> {
+    let list = this.projects;
+    if (params?.skip !== undefined) {
+      list = list.slice(params.skip);
+    }
+    if (params?.take !== undefined) {
+      list = list.slice(0, params.take);
+    }
+    return list;
+  }
+
+  async count(): Promise<number> {
+    return this.projects.length;
   }
 
   async findByIdWithActivities(id: string): Promise<ProjectWithActivities | null> {
@@ -77,15 +89,56 @@ describe('Unit — ProjectService with In-Memory Repository (DIP)', () => {
     const service = new ProjectService(repo);
     const result = await service.getAllProjects();
 
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe('proj-1');
-    expect(result[0].totalBac).toBe(10000);
-    expect(result[0].totalEv).toBe(5000);
-    expect(result[0].totalAc).toBe(5000);
-    expect(result[0].cpi).toBe(1.0);
-    expect(result[0].spi).toBe(1.0);
-    expect(result[0].costInterpretation).toBe('En presupuesto');
-    expect(result[0].scheduleInterpretation).toBe('A tiempo');
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0].id).toBe('proj-1');
+    expect(result.items[0].totalBac).toBe(10000);
+    expect(result.items[0].totalEv).toBe(5000);
+    expect(result.items[0].totalAc).toBe(5000);
+    expect(result.items[0].cpi).toBe(1.0);
+    expect(result.items[0].spi).toBe(1.0);
+    expect(result.items[0].costInterpretation).toBe('En presupuesto');
+    expect(result.items[0].scheduleInterpretation).toBe('A tiempo');
+    expect(result.meta.totalItems).toBe(1);
+  });
+
+  it('debe paginar proyectos correctamente según page y limit', async () => {
+    const repo = new InMemoryProjectRepository();
+    repo.projects = [
+      {
+        id: 'p-1',
+        name: 'P1',
+        description: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        activities: [],
+      },
+      {
+        id: 'p-2',
+        name: 'P2',
+        description: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        activities: [],
+      },
+      {
+        id: 'p-3',
+        name: 'P3',
+        description: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        activities: [],
+      },
+    ];
+
+    const service = new ProjectService(repo);
+    const result = await service.getAllProjects({ page: 2, limit: 1 });
+
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0].id).toBe('p-2');
+    expect(result.meta.totalItems).toBe(3);
+    expect(result.meta.totalPages).toBe(3);
+    expect(result.meta.currentPage).toBe(2);
+    expect(result.meta.pageSize).toBe(1);
   });
 
   it('debe retornar null cuando se busca un proyecto inexistente por ID', async () => {

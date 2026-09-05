@@ -542,6 +542,21 @@ okey el gitflow quedo como se menciona en la prueba tecnica
 si veo todo fue cumplido exitosamente, continuemos con la fase 2
 ```
 
+### Prompt 24 (Consulta sobre Ejecución y Cobertura de Pruebas Unitarias e Integrales):
+```markdown
+realizaste pruebas unitarias e integrales?
+```
+
+### Prompt 25 (Verificación de Buenas Prácticas de Gitflow e Integración por Ramas hacia develop):
+```markdown
+y como quedo en el gitflow se esta registrando conforme con las buenas practicas por ramas haciendo merce a la rama develop
+```
+
+### Prompt 26 (Consulta de Releases Existentes y Avance a Fase 3):
+```markdown
+ya existe un release puedes consultar cual es el ultimo para no crear o modificar el mismo release, podemos avanzar en la fase 3
+```
+
 ---
 
 ## 3. Aprendizaje y Validación de EVM

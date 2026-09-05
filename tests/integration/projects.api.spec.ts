@@ -12,6 +12,7 @@ vi.mock('@/infrastructure/db/prisma', () => ({
   prisma: {
     project: {
       findMany: vi.fn(),
+      count: vi.fn(),
       findUnique: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
@@ -57,6 +58,7 @@ describe('Integration — /api/projects Routes', () => {
       ];
 
       vi.mocked(prisma.project.findMany).mockResolvedValue(mockProjects as any);
+      vi.mocked(prisma.project.count).mockResolvedValue(1);
 
       const response = await getProjects();
       expect(response.status).toBe(200);
@@ -70,6 +72,35 @@ describe('Integration — /api/projects Routes', () => {
       expect(json[0].totalAc).toBe(6000);
       expect(json[0].cpi).toBeCloseTo(0.6667, 4);
       expect(json[0].costInterpretation).toBe('Sobre presupuesto (sobrecosto)');
+    });
+
+    it('debe retornar 200 OK con estructura paginada y metadata cuando se proveen query params page y limit', async () => {
+      const mockProjects = [
+        {
+          id: 'proj-1',
+          name: 'Proyecto Alpha',
+          description: 'Descripción test',
+          createdAt: new Date('2026-09-01T10:00:00.000Z'),
+          updatedAt: new Date('2026-09-01T10:00:00.000Z'),
+          activities: [],
+        },
+      ];
+
+      vi.mocked(prisma.project.findMany).mockResolvedValue(mockProjects as any);
+      vi.mocked(prisma.project.count).mockResolvedValue(15);
+
+      const req = new NextRequest('http://localhost:3000/api/projects?page=2&limit=5');
+      const response = await getProjects(req);
+      expect(response.status).toBe(200);
+
+      const json = await response.json();
+      expect(json.items).toBeDefined();
+      expect(Array.isArray(json.items)).toBe(true);
+      expect(json.meta).toBeDefined();
+      expect(json.meta.totalItems).toBe(15);
+      expect(json.meta.totalPages).toBe(3);
+      expect(json.meta.currentPage).toBe(2);
+      expect(json.meta.pageSize).toBe(5);
     });
   });
 

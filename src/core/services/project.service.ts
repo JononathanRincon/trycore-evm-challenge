@@ -3,6 +3,8 @@ import {
   UpdateProjectInput,
   ProjectDetailResponse,
   ProjectListItemResponse,
+  PaginationQuery,
+  PaginatedProjectsResponse,
 } from '@/core/dto/project.dto';
 import { calculateProjectEvm } from '@/core/evm/evm.calculator';
 import { serializeConsolidatedEvm } from '@/core/evm/evm.serializer';
@@ -27,12 +29,20 @@ export class ProjectService {
   }
 
   /**
-   * Lista todos los proyectos con métricas agregadas y de rendimiento para la vista general.
+   * Lista todos los proyectos con métricas agregadas y de rendimiento.
+   * Soporta paginación eficiente en base de datos.
    */
-  async getAllProjects(): Promise<ProjectListItemResponse[]> {
-    const projects = await this.projectRepo.findAllWithActivities();
+  async getAllProjects(query?: PaginationQuery): Promise<PaginatedProjectsResponse> {
+    const skip = query ? (query.page - 1) * query.limit : undefined;
+    const take = query ? query.limit : undefined;
 
-    return projects.map((project) => {
+    // Ejecución paralela eficiente de consulta de página y conteo total (Vercel Best Practice async-parallel)
+    const [projects, totalItems] = await Promise.all([
+      this.projectRepo.findAllWithActivities(query ? { skip, take } : undefined),
+      this.projectRepo.count(),
+    ]);
+
+    const items: ProjectListItemResponse[] = projects.map((project) => {
       const activityInputs = project.activities.map((a) => ({
         bac: a.bac,
         plannedProgress: a.plannedProgress,
@@ -59,6 +69,19 @@ export class ProjectService {
         scheduleInterpretation: serialized.scheduleInterpretation,
       };
     });
+
+    const pageSize = query?.limit || totalItems || 10;
+    const totalPages = Math.ceil(totalItems / pageSize) || 1;
+
+    return {
+      items,
+      meta: {
+        totalItems,
+        totalPages,
+        currentPage: query?.page || 1,
+        pageSize: query?.limit || totalItems,
+      },
+    };
   }
 
   /**
@@ -121,8 +144,8 @@ export class ProjectService {
   // --- Métodos estáticos delegados para retrocompatibilidad total ---
   private static instance = new ProjectService();
 
-  static getAllProjects() {
-    return ProjectService.instance.getAllProjects();
+  static getAllProjects(query?: PaginationQuery) {
+    return ProjectService.instance.getAllProjects(query);
   }
 
   static getProjectById(id: string) {
