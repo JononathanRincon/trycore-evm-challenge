@@ -4,7 +4,10 @@ import {
   ProjectListItemResponse,
   PaginatedProjectsResponse,
 } from '@/core/dto/project.dto';
-import { CreateActivityInput, ActivityWithEvmResponse } from '@/core/dto/activity.dto';
+import {
+  CreateActivityInput,
+  ActivityWithEvmResponse,
+} from '@/core/dto/activity.dto';
 
 interface UseProjectsParams {
   page?: number;
@@ -52,7 +55,9 @@ export function useCreateActivity(projectId: string | null) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (input: CreateActivityInput): Promise<ActivityWithEvmResponse> => {
+    mutationFn: async (
+      input: CreateActivityInput
+    ): Promise<ActivityWithEvmResponse> => {
       if (!projectId) throw new Error('No se ha seleccionado un proyecto');
       const res = await fetch(`/api/projects/${projectId}/activities`, {
         method: 'POST',

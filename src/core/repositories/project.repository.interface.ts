@@ -18,7 +18,9 @@ export interface IProjectRepository {
   /**
    * Obtiene proyectos incluyendo sus actividades, con soporte opcional de paginación.
    */
-  findAllWithActivities(_params?: FindProjectsParams): Promise<ProjectWithActivities[]>;
+  findAllWithActivities(
+    _params?: FindProjectsParams
+  ): Promise<ProjectWithActivities[]>;
 
   /**
    * Retorna el conteo total de proyectos registrados.

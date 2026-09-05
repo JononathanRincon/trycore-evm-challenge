@@ -1,5 +1,8 @@
 import { Activity } from '@prisma/client';
-import { CreateActivityInput, UpdateActivityInput } from '@/core/dto/activity.dto';
+import {
+  CreateActivityInput,
+  UpdateActivityInput,
+} from '@/core/dto/activity.dto';
 
 /**
  * Contrato de abstracción (Puerto) para la persistencia y consulta de actividades.

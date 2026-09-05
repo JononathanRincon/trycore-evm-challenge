@@ -11,7 +11,9 @@ import { Project } from '@prisma/client';
  * Adaptador de infraestructura que implementa IProjectRepository utilizando Prisma ORM.
  */
 export class PrismaProjectRepository implements IProjectRepository {
-  async findAllWithActivities(params?: FindProjectsParams): Promise<ProjectWithActivities[]> {
+  async findAllWithActivities(
+    params?: FindProjectsParams
+  ): Promise<ProjectWithActivities[]> {
     return prisma.project.findMany({
       skip: params?.skip,
       take: params?.take,
@@ -28,7 +30,9 @@ export class PrismaProjectRepository implements IProjectRepository {
     return prisma.project.count();
   }
 
-  async findByIdWithActivities(id: string): Promise<ProjectWithActivities | null> {
+  async findByIdWithActivities(
+    id: string
+  ): Promise<ProjectWithActivities | null> {
     return prisma.project.findUnique({
       where: { id },
       include: {
@@ -64,7 +68,9 @@ export class PrismaProjectRepository implements IProjectRepository {
       where: { id },
       data: {
         ...(data.name !== undefined && { name: data.name }),
-        ...(data.description !== undefined && { description: data.description }),
+        ...(data.description !== undefined && {
+          description: data.description,
+        }),
       },
     });
   }

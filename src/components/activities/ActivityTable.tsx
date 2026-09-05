@@ -11,7 +11,11 @@ interface ActivityTableProps {
   onDelete: (_id: string, _name: string) => void;
 }
 
-export const ActivityTable: React.FC<ActivityTableProps> = ({ activities, onEdit, onDelete }) => {
+export const ActivityTable: React.FC<ActivityTableProps> = ({
+  activities,
+  onEdit,
+  onDelete,
+}) => {
   if (activities.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
@@ -19,8 +23,8 @@ export const ActivityTable: React.FC<ActivityTableProps> = ({ activities, onEdit
           No hay actividades registradas en este proyecto
         </p>
         <p className="mt-1 text-xs text-slate-500">
-          Utiliza el botón superior para agregar la primera actividad y calcular sus métricas EVM en
-          tiempo real.
+          Utiliza el botón superior para agregar la primera actividad y calcular
+          sus métricas EVM en tiempo real.
         </p>
       </div>
     );
@@ -81,7 +85,10 @@ export const ActivityTable: React.FC<ActivityTableProps> = ({ activities, onEdit
           </thead>
           <tbody className="divide-y divide-slate-100 bg-white">
             {activities.map((act) => (
-              <tr key={act.id} className="hover:bg-slate-50/75 transition-colors">
+              <tr
+                key={act.id}
+                className="hover:bg-slate-50/75 transition-colors"
+              >
                 {/* Nombre de Actividad */}
                 <td
                   className="px-4 py-3 font-medium text-slate-900 max-w-[200px] truncate"
@@ -96,7 +103,9 @@ export const ActivityTable: React.FC<ActivityTableProps> = ({ activities, onEdit
                 </td>
 
                 {/* % Planificado */}
-                <td className="px-3 py-3 text-right text-slate-600">{act.plannedProgress}%</td>
+                <td className="px-3 py-3 text-right text-slate-600">
+                  {act.plannedProgress}%
+                </td>
 
                 {/* % Real */}
                 <td className="px-3 py-3 text-right text-slate-600 font-semibold">
@@ -139,7 +148,10 @@ export const ActivityTable: React.FC<ActivityTableProps> = ({ activities, onEdit
                 </td>
 
                 {/* CPI */}
-                <td className="px-3 py-3 text-center font-bold" title={act.costInterpretation}>
+                <td
+                  className="px-3 py-3 text-center font-bold"
+                  title={act.costInterpretation}
+                >
                   <span
                     className={`inline-block px-1.5 py-0.5 rounded text-[11px] ${
                       act.cpi === null
@@ -154,7 +166,10 @@ export const ActivityTable: React.FC<ActivityTableProps> = ({ activities, onEdit
                 </td>
 
                 {/* SPI */}
-                <td className="px-3 py-3 text-center font-bold" title={act.scheduleInterpretation}>
+                <td
+                  className="px-3 py-3 text-center font-bold"
+                  title={act.scheduleInterpretation}
+                >
                   <span
                     className={`inline-block px-1.5 py-0.5 rounded text-[11px] ${
                       act.spi === null
@@ -169,7 +184,9 @@ export const ActivityTable: React.FC<ActivityTableProps> = ({ activities, onEdit
                 </td>
 
                 {/* EAC */}
-                <td className="px-3 py-3 text-right text-slate-700">{formatCurrency(act.eac)}</td>
+                <td className="px-3 py-3 text-right text-slate-700">
+                  {formatCurrency(act.eac)}
+                </td>
 
                 {/* VAC */}
                 <td

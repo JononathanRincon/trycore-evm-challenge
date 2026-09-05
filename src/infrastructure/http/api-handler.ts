@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ZodSchema } from 'zod';
 import { ApiResponse } from './api-response';
 
-export interface HandlerContext<TBody = unknown, TParams = Record<string, string>> {
+export interface HandlerContext<
+  TBody = unknown,
+  TParams = Record<string, string>,
+> {
   req?: NextRequest;
   body: TBody;
   params: TParams;
@@ -23,15 +26,21 @@ export interface ApiHandlerOptions<TBody, TParams> {
  * 3. Captura cualquier excepción no controlada del servicio o base de datos y la registra en logs estructurados.
  * 4. Retorna HTTP 500 unificado eliminando bloques try/catch repetitivos en cada controlador.
  */
-export function createApiHandler<TBody = void, TParams = Record<string, string>>(
-  options: ApiHandlerOptions<TBody, TParams>
-) {
-  return async (req?: NextRequest, routeContext?: { params: TParams }): Promise<NextResponse> => {
+export function createApiHandler<
+  TBody = void,
+  TParams = Record<string, string>,
+>(options: ApiHandlerOptions<TBody, TParams>) {
+  return async (
+    req?: NextRequest,
+    routeContext?: { params: TParams }
+  ): Promise<NextResponse> => {
     let body: TBody = undefined as unknown as TBody;
 
     if (options.schema) {
       if (!req) {
-        return ApiResponse.badRequest('El cuerpo de la solicitud no es un JSON válido');
+        return ApiResponse.badRequest(
+          'El cuerpo de la solicitud no es un JSON válido'
+        );
       }
 
       try {
@@ -42,7 +51,9 @@ export function createApiHandler<TBody = void, TParams = Record<string, string>>
         }
         body = validation.data;
       } catch (_error) {
-        return ApiResponse.badRequest('El cuerpo de la solicitud no es un JSON válido');
+        return ApiResponse.badRequest(
+          'El cuerpo de la solicitud no es un JSON válido'
+        );
       }
     }
 
@@ -56,7 +67,9 @@ export function createApiHandler<TBody = void, TParams = Record<string, string>>
         errorMessage: error instanceof Error ? error.message : String(error),
         timestamp: new Date().toISOString(),
       });
-      return ApiResponse.internalError(options.defaultErrorMessage || 'Error interno del servidor');
+      return ApiResponse.internalError(
+        options.defaultErrorMessage || 'Error interno del servidor'
+      );
     }
   };
 }

@@ -14,7 +14,10 @@ export interface TrafficLightBadgeProps {
  * - Rojo (danger): Ambos < 1
  * - Neutral: Ambos son null (ej. sin costos ni planificación registrada)
  */
-export function getTrafficLightStatus(cpi: number | null, spi: number | null): TrafficLightStatus {
+export function getTrafficLightStatus(
+  cpi: number | null,
+  spi: number | null
+): TrafficLightStatus {
   if (cpi === null && spi === null) {
     return 'neutral';
   }
@@ -44,7 +47,8 @@ export function getTrafficLightClasses(status: TrafficLightStatus): {
   switch (status) {
     case 'success':
       return {
-        badge: 'bg-emerald-50 text-emerald-700 border-emerald-200 ring-emerald-600/20',
+        badge:
+          'bg-emerald-50 text-emerald-700 border-emerald-200 ring-emerald-600/20',
         dot: 'bg-emerald-500',
         label: 'Saludable',
       };
@@ -73,7 +77,10 @@ export function getTrafficLightClasses(status: TrafficLightStatus): {
 /**
  * Formatea valores numéricos asegurando manejo de null -> "N/A"
  */
-export function formatEvmValue(value: number | null, decimals: number = 2): string {
+export function formatEvmValue(
+  value: number | null,
+  decimals: number = 2
+): string {
   if (value === null || value === undefined || !Number.isFinite(value)) {
     return 'N/A';
   }

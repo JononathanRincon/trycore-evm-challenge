@@ -6,7 +6,10 @@ const DISPLAY_DECIMALS = 4;
  * Redondea un número a una cantidad fija de decimales para presentación en API/UI.
  * Utiliza notación exponencial para evitar errores comunes de punto flotante en JS.
  */
-export function roundToDecimals(value: number, decimals: number = DISPLAY_DECIMALS): number {
+export function roundToDecimals(
+  value: number,
+  decimals: number = DISPLAY_DECIMALS
+): number {
   if (Number.isNaN(value) || !Number.isFinite(value)) {
     return value;
   }

@@ -1,4 +1,8 @@
-import { ActivityEvmInput, EvmResult, ProjectConsolidatedEvm } from './evm.types';
+import {
+  ActivityEvmInput,
+  EvmResult,
+  ProjectConsolidatedEvm,
+} from './evm.types';
 import {
   PERCENT_DIVISOR,
   BENCHMARK_INDEX,
@@ -84,7 +88,9 @@ export function interpretSpi(spi: number | null): string {
  * - Total AC <= 0: cpi = null ("Sin costos registrados")
  * - Total PV <= 0: spi = null ("Sin avance planificado")
  */
-export function calculateProjectEvm(activities: ActivityEvmInput[]): ProjectConsolidatedEvm {
+export function calculateProjectEvm(
+  activities: ActivityEvmInput[]
+): ProjectConsolidatedEvm {
   if (!activities || activities.length === 0) {
     return {
       totalBac: 0,

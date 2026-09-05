@@ -8,10 +8,9 @@ interface ConsolidatedMetricsCardsProps {
   projectName: string;
 }
 
-export const ConsolidatedMetricsCards: React.FC<ConsolidatedMetricsCardsProps> = ({
-  evm,
-  projectName,
-}) => {
+export const ConsolidatedMetricsCards: React.FC<
+  ConsolidatedMetricsCardsProps
+> = ({ evm, projectName }) => {
   return (
     <div className="space-y-4">
       {/* Encabezado de Estado de Salud del Proyecto */}
@@ -23,7 +22,9 @@ export const ConsolidatedMetricsCards: React.FC<ConsolidatedMetricsCardsProps> =
           <h2 className="text-lg font-bold text-slate-900">{projectName}</h2>
           <p className="text-sm text-slate-500">
             {evm.activitiesCount}{' '}
-            {evm.activitiesCount === 1 ? 'actividad evaluada' : 'actividades evaluadas'}
+            {evm.activitiesCount === 1
+              ? 'actividad evaluada'
+              : 'actividades evaluadas'}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -44,7 +45,9 @@ export const ConsolidatedMetricsCards: React.FC<ConsolidatedMetricsCardsProps> =
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
             Presupuesto Total (BAC)
           </p>
-          <p className="mt-1 text-2xl font-bold text-slate-900">{formatCurrency(evm.totalBac)}</p>
+          <p className="mt-1 text-2xl font-bold text-slate-900">
+            {formatCurrency(evm.totalBac)}
+          </p>
           <p className="mt-1 text-xs text-slate-500">Línea base autorizada</p>
         </div>
 
@@ -53,8 +56,12 @@ export const ConsolidatedMetricsCards: React.FC<ConsolidatedMetricsCardsProps> =
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
             Valor Planificado (PV)
           </p>
-          <p className="mt-1 text-2xl font-bold text-indigo-600">{formatCurrency(evm.totalPv)}</p>
-          <p className="mt-1 text-xs text-slate-500">Trabajo programado a la fecha</p>
+          <p className="mt-1 text-2xl font-bold text-indigo-600">
+            {formatCurrency(evm.totalPv)}
+          </p>
+          <p className="mt-1 text-xs text-slate-500">
+            Trabajo programado a la fecha
+          </p>
         </div>
 
         {/* EV (Valor Ganado) */}
@@ -62,8 +69,12 @@ export const ConsolidatedMetricsCards: React.FC<ConsolidatedMetricsCardsProps> =
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
             Valor Ganado (EV)
           </p>
-          <p className="mt-1 text-2xl font-bold text-emerald-600">{formatCurrency(evm.totalEv)}</p>
-          <p className="mt-1 text-xs text-slate-500">Trabajo físico completado</p>
+          <p className="mt-1 text-2xl font-bold text-emerald-600">
+            {formatCurrency(evm.totalEv)}
+          </p>
+          <p className="mt-1 text-xs text-slate-500">
+            Trabajo físico completado
+          </p>
         </div>
 
         {/* AC (Costo Real) */}
@@ -71,8 +82,12 @@ export const ConsolidatedMetricsCards: React.FC<ConsolidatedMetricsCardsProps> =
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
             Costo Real (AC)
           </p>
-          <p className="mt-1 text-2xl font-bold text-amber-600">{formatCurrency(evm.totalAc)}</p>
-          <p className="mt-1 text-xs text-slate-500">Gasto financiero incurrido</p>
+          <p className="mt-1 text-2xl font-bold text-amber-600">
+            {formatCurrency(evm.totalAc)}
+          </p>
+          <p className="mt-1 text-xs text-slate-500">
+            Gasto financiero incurrido
+          </p>
         </div>
       </div>
 
@@ -94,8 +109,12 @@ export const ConsolidatedMetricsCards: React.FC<ConsolidatedMetricsCardsProps> =
               Meta ≥ 1.0
             </span>
           </div>
-          <p className="mt-1 text-2xl font-bold text-slate-900">{formatEvmValue(evm.cpi, 4)}</p>
-          <p className="mt-1 text-xs font-medium text-slate-600">{evm.costInterpretation}</p>
+          <p className="mt-1 text-2xl font-bold text-slate-900">
+            {formatEvmValue(evm.cpi, 4)}
+          </p>
+          <p className="mt-1 text-xs font-medium text-slate-600">
+            {evm.costInterpretation}
+          </p>
         </div>
 
         {/* SPI (Índice Cronograma) */}
@@ -114,8 +133,12 @@ export const ConsolidatedMetricsCards: React.FC<ConsolidatedMetricsCardsProps> =
               Meta ≥ 1.0
             </span>
           </div>
-          <p className="mt-1 text-2xl font-bold text-slate-900">{formatEvmValue(evm.spi, 4)}</p>
-          <p className="mt-1 text-xs font-medium text-slate-600">{evm.scheduleInterpretation}</p>
+          <p className="mt-1 text-2xl font-bold text-slate-900">
+            {formatEvmValue(evm.spi, 4)}
+          </p>
+          <p className="mt-1 text-xs font-medium text-slate-600">
+            {evm.scheduleInterpretation}
+          </p>
         </div>
 
         {/* EAC (Estimado al Concluir) */}
@@ -123,7 +146,9 @@ export const ConsolidatedMetricsCards: React.FC<ConsolidatedMetricsCardsProps> =
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
             Proyección Final (EAC)
           </p>
-          <p className="mt-1 text-2xl font-bold text-slate-900">{formatCurrency(evm.eac)}</p>
+          <p className="mt-1 text-2xl font-bold text-slate-900">
+            {formatCurrency(evm.eac)}
+          </p>
           <p className="mt-1 text-xs text-slate-500">
             {evm.cpi !== null && evm.cpi > 0
               ? 'Costo proyectado al terminar'
@@ -138,7 +163,9 @@ export const ConsolidatedMetricsCards: React.FC<ConsolidatedMetricsCardsProps> =
           </p>
           <p
             className={`mt-1 text-2xl font-bold ${
-              evm.vac !== null && evm.vac >= 0 ? 'text-emerald-600' : 'text-rose-600'
+              evm.vac !== null && evm.vac >= 0
+                ? 'text-emerald-600'
+                : 'text-rose-600'
             }`}
           >
             {formatCurrency(evm.vac)}

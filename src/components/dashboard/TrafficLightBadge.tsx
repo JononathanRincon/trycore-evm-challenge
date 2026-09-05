@@ -1,5 +1,8 @@
 import React from 'react';
-import { getTrafficLightStatus, getTrafficLightClasses } from '@/core/evm/evm.ui.helpers';
+import {
+  getTrafficLightStatus,
+  getTrafficLightClasses,
+} from '@/core/evm/evm.ui.helpers';
 
 interface TrafficLightBadgeProps {
   cpi: number | null;
@@ -26,7 +29,10 @@ export const TrafficLightBadge: React.FC<TrafficLightBadgeProps> = ({
         role="status"
         aria-label={`Estado EVM: ${classes.label}`}
       >
-        <span className={`h-2 w-2 rounded-full ${classes.dot}`} aria-hidden="true" />
+        <span
+          className={`h-2 w-2 rounded-full ${classes.dot}`}
+          aria-hidden="true"
+        />
         <span>{classes.label}</span>
       </div>
 

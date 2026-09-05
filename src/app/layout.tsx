@@ -8,7 +8,11 @@ export const metadata: Metadata = {
     'Herramienta integral para líderes de proyecto con cálculo de indicadores EVM en tiempo real.',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="es">
       <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">

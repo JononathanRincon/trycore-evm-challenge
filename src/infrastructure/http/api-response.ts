@@ -33,10 +33,15 @@ export class ApiResponse {
       message: err.message,
     }));
 
-    return this.badRequest('Error de validación en los datos enviados', details);
+    return this.badRequest(
+      'Error de validación en los datos enviados',
+      details
+    );
   }
 
-  static notFound(message: string = 'Recurso no encontrado'): NextResponse<ApiErrorResponse> {
+  static notFound(
+    message: string = 'Recurso no encontrado'
+  ): NextResponse<ApiErrorResponse> {
     return NextResponse.json(
       {
         statusCode: 404,
