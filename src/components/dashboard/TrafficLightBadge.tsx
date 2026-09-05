@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  getTrafficLightStatus,
-  getTrafficLightClasses,
-} from '@/core/evm/evm.ui.helpers';
+import { getTrafficLightStatus, getTrafficLightClasses } from '@/core/evm/evm.ui.helpers';
 
 interface TrafficLightBadgeProps {
   cpi: number | null;

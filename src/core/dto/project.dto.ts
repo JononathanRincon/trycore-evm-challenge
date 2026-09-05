@@ -3,7 +3,10 @@ import { ProjectConsolidatedEvm } from '../evm/evm.types';
 import { ActivityWithEvmResponseSchema } from './activity.dto';
 
 export const CreateProjectSchema = z.object({
-  name: z.string().min(1, 'El nombre del proyecto es obligatorio').max(150, 'Máximo 150 caracteres'),
+  name: z
+    .string()
+    .min(1, 'El nombre del proyecto es obligatorio')
+    .max(150, 'Máximo 150 caracteres'),
   description: z.string().max(500, 'Máximo 500 caracteres').optional(),
 });
 

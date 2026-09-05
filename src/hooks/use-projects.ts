@@ -1,5 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ProjectDetailResponse, ProjectListItemResponse, PaginatedProjectsResponse } from '@/core/dto/project.dto';
+import {
+  ProjectDetailResponse,
+  ProjectListItemResponse,
+  PaginatedProjectsResponse,
+} from '@/core/dto/project.dto';
 import { CreateActivityInput, ActivityWithEvmResponse } from '@/core/dto/activity.dto';
 
 interface UseProjectsParams {

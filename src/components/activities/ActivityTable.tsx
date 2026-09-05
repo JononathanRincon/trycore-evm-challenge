@@ -11,17 +11,16 @@ interface ActivityTableProps {
   onDelete: (_id: string, _name: string) => void;
 }
 
-export const ActivityTable: React.FC<ActivityTableProps> = ({
-  activities,
-  onEdit,
-  onDelete,
-}) => {
+export const ActivityTable: React.FC<ActivityTableProps> = ({ activities, onEdit, onDelete }) => {
   if (activities.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
-        <p className="text-sm font-medium text-slate-700">No hay actividades registradas en este proyecto</p>
+        <p className="text-sm font-medium text-slate-700">
+          No hay actividades registradas en este proyecto
+        </p>
         <p className="mt-1 text-xs text-slate-500">
-          Utiliza el botón superior para agregar la primera actividad y calcular sus métricas EVM en tiempo real.
+          Utiliza el botón superior para agregar la primera actividad y calcular sus métricas EVM en
+          tiempo real.
         </p>
       </div>
     );
@@ -33,28 +32,61 @@ export const ActivityTable: React.FC<ActivityTableProps> = ({
         <table className="min-w-full divide-y divide-slate-200 text-left text-xs">
           <thead className="bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider">
             <tr>
-              <th scope="col" className="px-4 py-3">Actividad</th>
-              <th scope="col" className="px-3 py-3 text-right">BAC</th>
-              <th scope="col" className="px-3 py-3 text-right">% Plan</th>
-              <th scope="col" className="px-3 py-3 text-right">% Real</th>
-              <th scope="col" className="px-3 py-3 text-right">PV</th>
-              <th scope="col" className="px-3 py-3 text-right">EV</th>
-              <th scope="col" className="px-3 py-3 text-right">AC</th>
-              <th scope="col" className="px-3 py-3 text-right">CV</th>
-              <th scope="col" className="px-3 py-3 text-right">SV</th>
-              <th scope="col" className="px-3 py-3 text-center">CPI</th>
-              <th scope="col" className="px-3 py-3 text-center">SPI</th>
-              <th scope="col" className="px-3 py-3 text-right">EAC</th>
-              <th scope="col" className="px-3 py-3 text-right">VAC</th>
-              <th scope="col" className="px-3 py-3 text-center">Salud</th>
-              <th scope="col" className="px-4 py-3 text-center">Acciones</th>
+              <th scope="col" className="px-4 py-3">
+                Actividad
+              </th>
+              <th scope="col" className="px-3 py-3 text-right">
+                BAC
+              </th>
+              <th scope="col" className="px-3 py-3 text-right">
+                % Plan
+              </th>
+              <th scope="col" className="px-3 py-3 text-right">
+                % Real
+              </th>
+              <th scope="col" className="px-3 py-3 text-right">
+                PV
+              </th>
+              <th scope="col" className="px-3 py-3 text-right">
+                EV
+              </th>
+              <th scope="col" className="px-3 py-3 text-right">
+                AC
+              </th>
+              <th scope="col" className="px-3 py-3 text-right">
+                CV
+              </th>
+              <th scope="col" className="px-3 py-3 text-right">
+                SV
+              </th>
+              <th scope="col" className="px-3 py-3 text-center">
+                CPI
+              </th>
+              <th scope="col" className="px-3 py-3 text-center">
+                SPI
+              </th>
+              <th scope="col" className="px-3 py-3 text-right">
+                EAC
+              </th>
+              <th scope="col" className="px-3 py-3 text-right">
+                VAC
+              </th>
+              <th scope="col" className="px-3 py-3 text-center">
+                Salud
+              </th>
+              <th scope="col" className="px-4 py-3 text-center">
+                Acciones
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 bg-white">
             {activities.map((act) => (
               <tr key={act.id} className="hover:bg-slate-50/75 transition-colors">
                 {/* Nombre de Actividad */}
-                <td className="px-4 py-3 font-medium text-slate-900 max-w-[200px] truncate" title={act.name}>
+                <td
+                  className="px-4 py-3 font-medium text-slate-900 max-w-[200px] truncate"
+                  title={act.name}
+                >
                   {act.name}
                 </td>
 
@@ -64,9 +96,7 @@ export const ActivityTable: React.FC<ActivityTableProps> = ({
                 </td>
 
                 {/* % Planificado */}
-                <td className="px-3 py-3 text-right text-slate-600">
-                  {act.plannedProgress}%
-                </td>
+                <td className="px-3 py-3 text-right text-slate-600">{act.plannedProgress}%</td>
 
                 {/* % Real */}
                 <td className="px-3 py-3 text-right text-slate-600 font-semibold">
@@ -115,8 +145,8 @@ export const ActivityTable: React.FC<ActivityTableProps> = ({
                       act.cpi === null
                         ? 'bg-slate-100 text-slate-500'
                         : act.cpi >= 1
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : 'bg-rose-100 text-rose-800'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-rose-100 text-rose-800'
                     }`}
                   >
                     {formatEvmValue(act.cpi, 4)}
@@ -130,8 +160,8 @@ export const ActivityTable: React.FC<ActivityTableProps> = ({
                       act.spi === null
                         ? 'bg-slate-100 text-slate-500'
                         : act.spi >= 1
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : 'bg-rose-100 text-rose-800'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-rose-100 text-rose-800'
                     }`}
                   >
                     {formatEvmValue(act.spi, 4)}
@@ -139,9 +169,7 @@ export const ActivityTable: React.FC<ActivityTableProps> = ({
                 </td>
 
                 {/* EAC */}
-                <td className="px-3 py-3 text-right text-slate-700">
-                  {formatCurrency(act.eac)}
-                </td>
+                <td className="px-3 py-3 text-right text-slate-700">{formatCurrency(act.eac)}</td>
 
                 {/* VAC */}
                 <td
@@ -149,8 +177,8 @@ export const ActivityTable: React.FC<ActivityTableProps> = ({
                     act.vac !== null && act.vac >= 0
                       ? 'text-emerald-600'
                       : act.vac !== null
-                      ? 'text-rose-600'
-                      : 'text-slate-500'
+                        ? 'text-rose-600'
+                        : 'text-slate-500'
                   }`}
                 >
                   {formatCurrency(act.vac)}

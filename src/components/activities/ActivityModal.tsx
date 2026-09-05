@@ -112,7 +112,10 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
         <form onSubmit={handleSubmit(onFormSubmit)} className="mt-4 space-y-4" noValidate>
           {/* Nombre */}
           <div>
-            <label htmlFor="activity-name" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+            <label
+              htmlFor="activity-name"
+              className="block text-xs font-semibold text-slate-700 uppercase tracking-wider"
+            >
               Nombre de la Actividad *
             </label>
             <input
@@ -128,7 +131,10 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {/* Presupuesto Total (BAC) */}
             <div>
-              <label htmlFor="activity-bac" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+              <label
+                htmlFor="activity-bac"
+                className="block text-xs font-semibold text-slate-700 uppercase tracking-wider"
+              >
                 Presupuesto BAC ($) *
               </label>
               <input
@@ -145,7 +151,10 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
 
             {/* Costo Real (AC) */}
             <div>
-              <label htmlFor="activity-ac" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+              <label
+                htmlFor="activity-ac"
+                className="block text-xs font-semibold text-slate-700 uppercase tracking-wider"
+              >
                 Costo Real AC ($) *
               </label>
               <input
@@ -157,14 +166,19 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                 {...register('actualCost', { valueAsNumber: true })}
                 className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
-              {errors.actualCost && <p className="mt-1 text-xs text-rose-600">{errors.actualCost.message}</p>}
+              {errors.actualCost && (
+                <p className="mt-1 text-xs text-rose-600">{errors.actualCost.message}</p>
+              )}
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {/* Avance Planificado (%) */}
             <div>
-              <label htmlFor="activity-planned-progress" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+              <label
+                htmlFor="activity-planned-progress"
+                className="block text-xs font-semibold text-slate-700 uppercase tracking-wider"
+              >
                 % Planificado (0-100) *
               </label>
               <input
@@ -184,7 +198,10 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
 
             {/* Avance Real Completado (%) */}
             <div>
-              <label htmlFor="activity-actual-progress" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+              <label
+                htmlFor="activity-actual-progress"
+                className="block text-xs font-semibold text-slate-700 uppercase tracking-wider"
+              >
                 % Real Completado (0-100) *
               </label>
               <input
@@ -204,7 +221,8 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
           </div>
 
           <p className="text-[11px] text-slate-500 italic">
-            * Nota: Un avance real del 0% es perfectamente válido y representa una actividad aún no iniciada.
+            * Nota: Un avance real del 0% es perfectamente válido y representa una actividad aún no
+            iniciada.
           </p>
 
           <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
@@ -220,7 +238,11 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
               disabled={isSubmitting}
               className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 transition disabled:opacity-50"
             >
-              {isSubmitting ? 'Guardando...' : isEditing ? 'Actualizar Actividad' : 'Crear Actividad'}
+              {isSubmitting
+                ? 'Guardando...'
+                : isEditing
+                  ? 'Actualizar Actividad'
+                  : 'Crear Actividad'}
             </button>
           </div>
         </form>
