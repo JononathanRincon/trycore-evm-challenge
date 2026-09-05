@@ -1,6 +1,6 @@
 {
   "name": "trycore-evm-challenge",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -16,12 +16,15 @@
     "prisma:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.9.1",
     "@prisma/client": "^6.4.1",
+    "@tanstack/react-query": "^5.102.8",
     "clsx": "^2.1.1",
     "lucide-react": "^0.475.0",
     "next": "^14.2.25",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hook-form": "^7.87.0",
     "recharts": "^2.15.1",
     "swagger-ui-react": "^5.18.3",
     "tailwind-merge": "^3.0.2",

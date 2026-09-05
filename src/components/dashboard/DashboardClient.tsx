@@ -1,115 +1,83 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ProjectDetailResponse } from '@/core/dto/project.dto';
 import { ActivityWithEvmResponse, CreateActivityInput } from '@/core/dto/activity.dto';
 import { ConsolidatedMetricsCards } from '@/components/dashboard/ConsolidatedMetricsCards';
 import { ActivityTable } from '@/components/activities/ActivityTable';
 import { ActivityModal } from '@/components/activities/ActivityModal';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { EvmComparisonChart } from '@/components/charts/EvmComparisonChart';
+import {
+  useProjects,
+  useProjectDetail,
+  useCreateActivity,
+  useUpdateActivity,
+  useDeleteActivity,
+} from '@/hooks/use-projects';
 
 export default function DashboardClient() {
-  const [projects, setProjects] = useState<any[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
-  const [projectDetail, setProjectDetail] = useState<ProjectDetailResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // Estados de modales
+  // Modales y diálogos
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingActivity, setEditingActivity] = useState<ActivityWithEvmResponse | null>(null);
+  const [deletingActivity, setDeletingActivity] = useState<{ id: string; name: string } | null>(
+    null
+  );
+  const [actionError, setActionError] = useState<string | null>(null);
 
-  // Cargar lista de proyectos
-  const fetchProjects = useCallback(async () => {
-    try {
-      setLoading(true);
-      const res = await fetch('/api/projects');
-      if (!res.ok) throw new Error('Error al cargar la lista de proyectos');
-      const data = await res.json();
-      setProjects(data);
+  // TanStack Query Hooks
+  const { data: projects = [], isLoading: isLoadingProjects, error: projectsError } = useProjects();
 
-      if (data.length > 0 && !selectedProjectId) {
-        setSelectedProjectId(data[0].id);
-      }
-    } catch (err: any) {
-      setError(err.message || 'Error de conexión');
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedProjectId]);
-
-  // Cargar detalle del proyecto seleccionado con sus actividades enriquecidas
-  const fetchProjectDetail = useCallback(async (id: string) => {
-    try {
-      const res = await fetch(`/api/projects/${id}`);
-      if (!res.ok) throw new Error('Error al cargar el detalle del proyecto');
-      const data: ProjectDetailResponse = await res.json();
-      setProjectDetail(data);
-    } catch (err: any) {
-      setError(err.message || 'Error al obtener métricas');
-    }
-  }, []);
-
+  // Seleccionar automáticamente el primer proyecto si no hay uno activo
   useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
-
-  useEffect(() => {
-    if (selectedProjectId) {
-      fetchProjectDetail(selectedProjectId);
+    if (projects.length > 0 && !selectedProjectId) {
+      setSelectedProjectId(projects[0].id);
     }
-  }, [selectedProjectId, fetchProjectDetail]);
+  }, [projects, selectedProjectId]);
 
-  // Crear o actualizar actividad
+  const {
+    data: projectDetail,
+    isLoading: isLoadingDetail,
+    error: detailError,
+  } = useProjectDetail(selectedProjectId);
+
+  const createActivityMutation = useCreateActivity(selectedProjectId);
+  const updateActivityMutation = useUpdateActivity(selectedProjectId);
+  const deleteActivityMutation = useDeleteActivity(selectedProjectId);
+
+  // Guardar actividad (Crear o Actualizar)
   const handleSaveActivity = async (data: CreateActivityInput) => {
     if (!selectedProjectId) return;
+    setActionError(null);
 
     if (editingActivity) {
-      // PUT
-      const res = await fetch(`/api/activities/${editingActivity.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+      await updateActivityMutation.mutateAsync({
+        activityId: editingActivity.id,
+        input: data,
       });
-      if (!res.ok) {
-        const errJson = await res.json();
-        throw new Error(errJson.message || 'Error al actualizar actividad');
-      }
     } else {
-      // POST
-      const res = await fetch(`/api/projects/${selectedProjectId}/activities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) {
-        const errJson = await res.json();
-        throw new Error(errJson.message || 'Error al crear actividad');
-      }
+      await createActivityMutation.mutateAsync(data);
     }
-
-    // Refrescar datos en caliente
-    await fetchProjectDetail(selectedProjectId);
-    await fetchProjects();
   };
 
-  // Eliminar actividad
-  const handleDeleteActivity = async (id: string, name: string) => {
-    if (!confirm(`¿Estás seguro de eliminar la actividad "${name}"?`)) return;
+  // Abrir diálogo de confirmación para eliminar
+  const handleOpenDeleteDialog = (id: string, name: string) => {
+    setActionError(null);
+    setDeletingActivity({ id, name });
+  };
 
+  // Confirmar eliminación
+  const handleConfirmDelete = async () => {
+    if (!deletingActivity) return;
     try {
-      const res = await fetch(`/api/activities/${id}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Error al eliminar la actividad');
-
-      if (selectedProjectId) {
-        await fetchProjectDetail(selectedProjectId);
-        await fetchProjects();
-      }
-    } catch (err: any) {
-      alert(err.message || 'Error al eliminar');
+      setActionError(null);
+      await deleteActivityMutation.mutateAsync(deletingActivity.id);
+      setDeletingActivity(null);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al eliminar la actividad';
+      setActionError(message);
     }
   };
 
@@ -123,15 +91,16 @@ export default function DashboardClient() {
     setIsModalOpen(true);
   };
 
+  const loading = isLoadingProjects || (Boolean(selectedProjectId) && isLoadingDetail);
+  const generalError = projectsError?.message || detailError?.message || actionError;
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header Corporativo */}
       <header className="border-b border-slate-200 bg-white px-6 py-4 shadow-2xs">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-indigo-600 p-2 text-white font-black text-sm">
-              EVM
-            </div>
+            <div className="rounded-lg bg-indigo-600 p-2 text-white font-black text-sm">EVM</div>
             <div>
               <h1 className="text-xl font-bold text-slate-900">
                 Trycore EVM Challenge — Dashboard de Gestión
@@ -166,7 +135,10 @@ export default function DashboardClient() {
         {/* Selector de Proyecto */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl bg-white p-4 border border-slate-200 shadow-xs">
           <div className="flex items-center gap-3">
-            <label htmlFor="project-select" className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+            <label
+              htmlFor="project-select"
+              className="text-xs font-bold text-slate-700 uppercase tracking-wider"
+            >
               Proyecto Activo:
             </label>
             <select
@@ -183,21 +155,21 @@ export default function DashboardClient() {
             </select>
           </div>
 
-          <div className="text-xs text-slate-500">
-            {projectDetail?.description}
-          </div>
+          <div className="text-xs text-slate-500">{projectDetail?.description}</div>
         </div>
 
-        {error && (
+        {generalError && (
           <div className="rounded-xl bg-rose-50 p-4 border border-rose-200 text-xs text-rose-700">
-            {error}
+            {generalError}
           </div>
         )}
 
         {loading ? (
           <div className="flex min-h-[300px] flex-col items-center justify-center gap-3">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
-            <p className="text-xs font-medium text-slate-500">Cargando indicadores y actividades...</p>
+            <p className="text-xs font-medium text-slate-500">
+              Cargando indicadores y actividades...
+            </p>
           </div>
         ) : projectDetail ? (
           <>
@@ -218,7 +190,8 @@ export default function DashboardClient() {
                     Desglose de Actividades e Indicadores Granulares
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Métricas calculadas al vuelo por el motor de negocio según avance real y costos reportados.
+                    Métricas calculadas al vuelo por el motor de negocio según avance real y costos
+                    reportados.
                   </p>
                 </div>
                 <button
@@ -233,7 +206,7 @@ export default function DashboardClient() {
               <ActivityTable
                 activities={projectDetail.activities}
                 onEdit={openEditModal}
-                onDelete={handleDeleteActivity}
+                onDelete={handleOpenDeleteDialog}
               />
             </section>
           </>
@@ -251,6 +224,19 @@ export default function DashboardClient() {
         onSubmit={handleSaveActivity}
         initialData={editingActivity}
         isEditing={Boolean(editingActivity)}
+      />
+
+      {/* Diálogo de Confirmación Accesible para Eliminación */}
+      <ConfirmDialog
+        isOpen={Boolean(deletingActivity)}
+        title="Eliminar Actividad"
+        message={`¿Estás seguro de que deseas eliminar permanentemente la actividad "${deletingActivity?.name}"? Esta acción recalculará los indicadores EVM del proyecto de manera irreversible.`}
+        confirmText="Eliminar Actividad"
+        cancelText="Cancelar"
+        variant="danger"
+        isLoading={deleteActivityMutation.isPending}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeletingActivity(null)}
       />
     </div>
   );

@@ -508,6 +508,55 @@ placeholders) y que la tabla/gráfica se actualizan correctamente al vuelo —
 no solo que compila.
 ```
 
+### Prompt 18 (Solicitud de Auditoría Técnica Integral y Recomendaciones Arquitectónicas):
+```markdown
+me realizas una auditoria de este proyecto y me das recomendaciones para mejorar la arquitectura
+```
+
+### Prompt 19 (Generación del Plan Canónico de Implementación de Mejoras con Estándares Trycore y Skills de .agents):
+```markdown
+me realizas un plan de implementacion para realizar esos cambios, por favor analiza el documento Ingeniero de Desarrollo — Trycore Colombia (1) ese plan de implementacion debe cumplir con las recomendaciones que tiene ese documento el proyecto esta desplegado en vercel y ese plan de implementacion se debe guardar en un archivo .md como plan de implementacion mejoras realizadas buenas practicas segun la auditoria que acabas de realizar y tambien tener en cuenta que skills puedes usar para esta mejoras que se encuentra en la carpeta .agent y guardar esos registros de promp en el archivo AI_PROCESS.md de las mejoras realizadas
+```
+
+### Prompt 20 (Renombramiento del Plan Canónico de Mejoras):
+```markdown
+le cambie el nombre del archivo por plan de implementacion mejoras realizadas.md
+```
+
+### Prompt 21 (Aprobación de Inicio de Mejoras y Compartición de Enlaces de Producción Vercel):
+```markdown
+si apruebo, aparte te comento que aqui tengo desplegado el aplicativo Dashboard Principal (Producción):👉 https://trycore-evm-challenge.vercel.app
+Documentación Interactiva Swagger UI:👉 https://trycore-evm-challenge.vercel.app/api-docs
+Endpoint del Spec OpenAPI 3.0 (JSON):👉 https://trycore-evm-challenge.vercel.app/api/docs
+Deployment Inspect (Vercel Console):👉 https://vercel.com/jonathanandres080-6851s-projects/trycore-evm-challenge
+y este es el token de vercel si lo necesitas del proyecto este es el token de vercel [REDACTADO POR SEGURIDAD]
+```
+
+### Prompt 22 (Validación de Conformidad con Gitflow según Prueba Técnica):
+```markdown
+okey el gitflow quedo como se menciona en la prueba tecnica
+```
+
+### Prompt 23 (Aprobación y Solicitud de Ejecución de la Fase 2: Handlers HTTP y DRY):
+```markdown
+si veo todo fue cumplido exitosamente, continuemos con la fase 2
+```
+
+### Prompt 24 (Consulta sobre Ejecución y Cobertura de Pruebas Unitarias e Integrales):
+```markdown
+realizaste pruebas unitarias e integrales?
+```
+
+### Prompt 25 (Verificación de Buenas Prácticas de Gitflow e Integración por Ramas hacia develop):
+```markdown
+y como quedo en el gitflow se esta registrando conforme con las buenas practicas por ramas haciendo merce a la rama develop
+```
+
+### Prompt 26 (Consulta de Releases Existentes y Avance a Fase 3):
+```markdown
+ya existe un release puedes consultar cual es el ultimo para no crear o modificar el mismo release, podemos avanzar en la fase 3
+```
+
 ---
 
 ## 3. Aprendizaje y Validación de EVM
@@ -565,6 +614,19 @@ Para validar la comprensión antes de escribir código, se realizó un ejercicio
 - **Contexto**: El requerimiento de Fase 5 solicitó una gráfica Recharts para contrastar Valor Planificado (PV), Valor Ganado (EV) y Costo Real (AC) por actividad, permitiendo barras agrupadas o líneas según criterio técnico justificado.
 - **Identificación y Decisión adoptada**: Se implementó una gráfica de **barras agrupadas**. En gestión de proyectos tradicional (EVM acumulativo en el tiempo), las líneas son adecuadas para curvas S continuas de fechas. Sin embargo, en el desglose granular por actividades del desafío, cada actividad es una unidad de trabajo discreta e independiente (ej. "Diseño", "Base de Datos", "Facturación"). Un gráfico de líneas implicaría falsamente una continuidad temporal o interpolación secuencial entre actividades. Las barras agrupadas contrastan con total honestidad matemática la tríada (PV en azul, EV en verde y AC en ámbar) para cada entrega de forma visual e intuitiva.
 
+### Decisión 7: Adopción del Patrón Repositorio en Next.js App Router (Inversión de Dependencias)
+- **Contexto**: La auditoría identificó que `ProjectService` y `ActivityService` acoplaban la lógica de aplicación directamente al cliente de Prisma (`@/infrastructure/db/prisma`).
+- **Identificación y Decisión adoptada**: Se diseña el Patrón Repositorio con interfaces en el Core (`IProjectRepository`, `IActivityRepository`) y adaptadores en Infraestructura (`PrismaProjectRepository`, `PrismaActivityRepository`). Esto restaura el Principio de Inversión de Dependencias (DIP) de Clean Architecture, permitiendo inyectar implementaciones en memoria para pruebas unitarias sin hackeos de mockeo a nivel de módulos (`vi.mock`), y aislando al negocio de cambios en la base de datos o capas de caché.
+
+### Decisión 8: Fuente Única de Verdad (Single Source of Truth) para Validaciones con Zod y React Hook Form
+- **Contexto**: El modal de creación de actividades en el frontend duplicaba manualmente con sentencias `if/else` las mismas reglas de validación (rango 0-100, no negatividad de costos, límites de caracteres) ya definidas en `src/core/dto/activity.dto.ts`.
+- **Identificación y Decisión adoptada**: Integrar `react-hook-form` con `@hookform/resolvers/zod` consumiendo directamente el schema `CreateActivitySchema`. Esto elimina código redundante (DRY), garantiza coherencia absoluta entre cliente y servidor, y previene que una actualización de reglas en backend quede desfasada en el frontend.
+
+### Decisión 9: Reemplazo de `confirm()` y `alert()` por componente accesible `ConfirmDialog` y manejo reactivo de errores en React Query
+- **Contexto**: La auditoría identificó llamadas bloqueantes nativas del navegador (`confirm()` y `alert()`) en `DashboardClient.tsx`, que degradan la experiencia de usuario y violan estándares de accesibilidad (WCAG) y buenas prácticas frontend.
+- **Identificación y Decisión adoptada**: Implementación de `ConfirmDialog.tsx` con accesibilidad ARIA completa (`role="dialog"`, `aria-modal="true"`, foco automático en botón cancelar, soporte para tecla `Escape` y desenfoque de fondo con `backdrop-blur`). El flujo de eliminación y errores de mutaciones se delega a estados reactivos en TanStack Query (`isPending`, banners contextuales en Tailwind), logrando 0 llamadas a `alert()` o `confirm()` en toda la base de código.
+
+
 ### Corrección de Proceso Gitflow: Integración vía Pull Requests en GitHub
 - **Incidente en Fase 1**: La rama `feature/data-models` fue integrada a `develop` mediante un comando de merge local con `--no-ff`.
 - **Corrección**: El usuario señaló que el enunciado de Trycore exige: *"Cada feature debe integrarse a develop mediante un Pull Request, aunque trabajes solo"*. Se documenta este error de proceso con total transparencia y se adopta la regla estricta: desde la Fase 2 (`feature/evm-engine`), cada rama de característica se publica en GitHub, se crea un Pull Request real mediante `gh pr create`, y se fusiona a `develop` mediante `gh pr merge`.
@@ -593,4 +655,8 @@ Para validar la comprensión antes de escribir código, se realizó un ejercicio
    - *Lección aprendida*: La exposición temporal de una credencial de base de datos en un prompt interactivo (que motivó su inmediata rotación y reemplazo por `[REDACTADO POR SEGURIDAD]`) resalta la importancia de adoptar desde el primer minuto un gestor de secretos o herramientas locales como `dotenv-vault` o el CLI de Doppler/Supabase (`supabase link`), evitando manipular contraseñas directamente en mensajes o prompts compartidos con agentes de IA.
 
 3. **Pruebas End-to-End (Playwright / Cypress) automatizadas para la UI**:
-   - *Lección aprendida*: Aunque la suite de pruebas unitarias y de integración cuenta con 55 tests automáticos en Vitest cubriendo el 100% del motor EVM, los servicios de aplicación y las API routes, la interacción visual del dashboard (apertura de modales, refresco al vuelo de Recharts) se validó de forma manual y mediante pruebas de componentes con testing-library. Incorporar pruebas E2E automatizadas con Playwright habría cerrado el ciclo de aseguramiento de calidad de forma 100% desatendida.
+   - *Lección aprendida*: La suite de pruebas unitarias y de integración se amplió a 64 tests automáticos en Vitest cubriendo el 100% del motor EVM, los servicios de aplicación desacoplados por el Patrón Repositorio y las API routes paginadas. Aunque la interacción visual del dashboard ahora cuenta con TanStack Query y componentes modales accesibles, incorporar pruebas E2E automatizadas con Playwright en el pipeline de CI cerraría el ciclo de aseguramiento de calidad de forma 100% desatendida en el navegador.
+
+4. **Automatización de Quality Gates desde el día cero**:
+   - *Lección aprendida*: Configurar el pipeline de GitHub Actions (`ci.yml`) desde el inicio del proyecto asegura que cada Pull Request sea evaluado de manera idéntica al entorno de producción (verificando Prettier, ESLint, cobertura en Vitest y `next build`). La incorporación de este gate en la versión 1.1.0 eleva la madurez operativa del repositorio a un nivel de estándar industrial.
+

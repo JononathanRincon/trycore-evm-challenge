@@ -1,14 +1,15 @@
-import { NextRequest } from 'next/server';
 import { ProjectService } from '@/core/services/project.service';
-import { UpdateProjectSchema } from '@/core/dto/project.dto';
+import { UpdateProjectSchema, UpdateProjectInput } from '@/core/dto/project.dto';
 import { ApiResponse } from '@/infrastructure/http/api-response';
+import { createApiHandler } from '@/infrastructure/http/api-handler';
 
 interface RouteParams {
-  params: { id: string };
+  id: string;
 }
 
-export async function GET(_request: NextRequest, { params }: RouteParams) {
-  try {
+export const GET = createApiHandler<void, RouteParams>({
+  defaultErrorMessage: 'Error al obtener el detalle del proyecto',
+  handler: async ({ params }) => {
     const project = await ProjectService.getProjectById(params.id);
 
     if (!project) {
@@ -16,39 +17,26 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     }
 
     return ApiResponse.success(project);
-  } catch (_error) {
-    return ApiResponse.internalError('Error al obtener el detalle del proyecto');
-  }
-}
+  },
+});
 
-export async function PUT(request: NextRequest, { params }: RouteParams) {
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch (_error) {
-    return ApiResponse.badRequest('El cuerpo de la solicitud no es un JSON válido');
-  }
-
-  const validation = UpdateProjectSchema.safeParse(body);
-  if (!validation.success) {
-    return ApiResponse.validationError(validation.error);
-  }
-
-  try {
-    const updated = await ProjectService.updateProject(params.id, validation.data);
+export const PUT = createApiHandler<UpdateProjectInput, RouteParams>({
+  schema: UpdateProjectSchema,
+  defaultErrorMessage: 'Error interno al actualizar el proyecto',
+  handler: async ({ body, params }) => {
+    const updated = await ProjectService.updateProject(params.id, body);
 
     if (!updated) {
       return ApiResponse.notFound(`Proyecto con ID '${params.id}' no encontrado`);
     }
 
     return ApiResponse.success(updated);
-  } catch (_error) {
-    return ApiResponse.internalError('Error interno al actualizar el proyecto');
-  }
-}
+  },
+});
 
-export async function DELETE(_request: NextRequest, { params }: RouteParams) {
-  try {
+export const DELETE = createApiHandler<void, RouteParams>({
+  defaultErrorMessage: 'Error interno al eliminar el proyecto',
+  handler: async ({ params }) => {
     const deleted = await ProjectService.deleteProject(params.id);
 
     if (!deleted) {
@@ -56,7 +44,5 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     }
 
     return ApiResponse.success({ message: 'Proyecto eliminado correctamente' });
-  } catch (_error) {
-    return ApiResponse.internalError('Error interno al eliminar el proyecto');
-  }
-}
+  },
+});

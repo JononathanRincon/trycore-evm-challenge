@@ -1,34 +1,55 @@
-import { NextRequest } from 'next/server';
 import { ProjectService } from '@/core/services/project.service';
-import { CreateProjectSchema } from '@/core/dto/project.dto';
+import {
+  CreateProjectSchema,
+  CreateProjectInput,
+  PaginationQuerySchema,
+} from '@/core/dto/project.dto';
 import { ApiResponse } from '@/infrastructure/http/api-response';
+import { createApiHandler } from '@/infrastructure/http/api-handler';
 
-export async function GET() {
-  try {
-    const projects = await ProjectService.getAllProjects();
-    return ApiResponse.success(projects);
-  } catch (_error) {
-    return ApiResponse.internalError('Error al obtener la lista de proyectos');
-  }
-}
+export const GET = createApiHandler({
+  defaultErrorMessage: 'Error al obtener la lista de proyectos',
+  handler: async ({ req }) => {
+    let hasPagination = false;
+    let page = 1;
+    let limit = 10;
 
-export async function POST(request: NextRequest) {
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch (_error) {
-    return ApiResponse.badRequest('El cuerpo de la solicitud no es un JSON válido');
-  }
+    if (req) {
+      const url = new URL(req.url);
+      const pageStr = url.searchParams.get('page');
+      const limitStr = url.searchParams.get('limit');
 
-  const validation = CreateProjectSchema.safeParse(body);
-  if (!validation.success) {
-    return ApiResponse.validationError(validation.error);
-  }
+      if (pageStr !== null || limitStr !== null) {
+        hasPagination = true;
+        const parsed = PaginationQuerySchema.safeParse({
+          page: pageStr ?? 1,
+          limit: limitStr ?? 10,
+        });
 
-  try {
-    const created = await ProjectService.createProject(validation.data);
+        if (parsed.success) {
+          page = parsed.data.page;
+          limit = parsed.data.limit;
+        }
+      }
+    }
+
+    const paginated = await ProjectService.getAllProjects(
+      hasPagination ? { page, limit } : undefined
+    );
+
+    if (hasPagination) {
+      return ApiResponse.success(paginated);
+    }
+
+    return ApiResponse.success(paginated.items);
+  },
+});
+
+export const POST = createApiHandler<CreateProjectInput>({
+  schema: CreateProjectSchema,
+  defaultErrorMessage: 'Error interno al crear el proyecto',
+  handler: async ({ body }) => {
+    const created = await ProjectService.createProject(body);
     return ApiResponse.created(created);
-  } catch (_error) {
-    return ApiResponse.internalError('Error interno al crear el proyecto');
-  }
-}
+  },
+});

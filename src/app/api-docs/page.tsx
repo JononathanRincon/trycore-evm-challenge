@@ -9,7 +9,9 @@ const SwaggerUI = dynamic(() => import('swagger-ui-react'), {
   loading: () => (
     <div className="flex min-h-[400px] flex-col items-center justify-center gap-3">
       <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
-      <p className="text-sm font-medium text-slate-500">Cargando documentación interactiva Swagger UI...</p>
+      <p className="text-sm font-medium text-slate-500">
+        Cargando documentación interactiva Swagger UI...
+      </p>
     </div>
   ),
 });
@@ -29,7 +31,8 @@ export default function ApiDocsPage() {
               </h1>
             </div>
             <p className="mt-1 text-sm text-slate-600">
-              Contratos interactivos y especificación formal de los 8 endpoints REST para proyectos y actividades.
+              Contratos interactivos y especificación formal de los 8 endpoints REST para proyectos
+              y actividades.
             </p>
           </div>
           <div className="flex items-center gap-3">

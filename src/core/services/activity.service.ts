@@ -1,4 +1,3 @@
-import { prisma } from '@/infrastructure/db/prisma';
 import {
   CreateActivityInput,
   UpdateActivityInput,
@@ -6,9 +5,21 @@ import {
 } from '@/core/dto/activity.dto';
 import { calculateActivityEvm } from '@/core/evm/evm.calculator';
 import { serializeEvmResult } from '@/core/evm/evm.serializer';
+import { IActivityRepository } from '@/core/repositories/activity.repository.interface';
+import { PrismaActivityRepository } from '@/infrastructure/repositories/prisma-activity.repository';
 import { Activity } from '@prisma/client';
 
+/**
+ * Servicio de aplicación para la gestión de Actividades y derivación de indicadores EVM.
+ * Sigue Clean Architecture dependiendo de la abstracción IActivityRepository.
+ */
 export class ActivityService {
+  private activityRepo: IActivityRepository;
+
+  constructor(activityRepo?: IActivityRepository) {
+    this.activityRepo = activityRepo ?? new PrismaActivityRepository();
+  }
+
   /**
    * Transforma una entidad de actividad de Prisma enriqueciéndola con sus indicadores EVM calculados y serializados.
    */
@@ -36,83 +47,60 @@ export class ActivityService {
     };
   }
 
+  enrichActivityWithEvm(activity: Activity): ActivityWithEvmResponse {
+    return ActivityService.enrichActivityWithEvm(activity);
+  }
+
   /**
    * Crea una nueva actividad asociada a un proyecto existente.
    */
-  static async createActivity(
+  async createActivity(
     projectId: string,
     data: CreateActivityInput
   ): Promise<ActivityWithEvmResponse | null> {
-    const projectExists = await prisma.project.findUnique({
-      where: { id: projectId },
-      select: { id: true },
-    });
-
-    if (!projectExists) {
+    const exists = await this.activityRepo.projectExists(projectId);
+    if (!exists) {
       return null;
     }
 
-    const created = await prisma.activity.create({
-      data: {
-        name: data.name,
-        projectId,
-        bac: data.bac,
-        plannedProgress: data.plannedProgress,
-        actualProgress: data.actualProgress,
-        actualCost: data.actualCost,
-      },
-    });
-
-    return this.enrichActivityWithEvm(created);
+    const created = await this.activityRepo.create(projectId, data);
+    return ActivityService.enrichActivityWithEvm(created);
   }
 
   /**
    * Actualiza una actividad existente y recalcula sus indicadores EVM.
    */
-  static async updateActivity(
+  async updateActivity(
     id: string,
     data: UpdateActivityInput
   ): Promise<ActivityWithEvmResponse | null> {
-    const existing = await prisma.activity.findUnique({
-      where: { id },
-      select: { id: true },
-    });
-
-    if (!existing) {
+    const updated = await this.activityRepo.update(id, data);
+    if (!updated) {
       return null;
     }
 
-    const updated = await prisma.activity.update({
-      where: { id },
-      data: {
-        ...(data.name !== undefined && { name: data.name }),
-        ...(data.bac !== undefined && { bac: data.bac }),
-        ...(data.plannedProgress !== undefined && { plannedProgress: data.plannedProgress }),
-        ...(data.actualProgress !== undefined && { actualProgress: data.actualProgress }),
-        ...(data.actualCost !== undefined && { actualCost: data.actualCost }),
-      },
-    });
-
-    return this.enrichActivityWithEvm(updated);
+    return ActivityService.enrichActivityWithEvm(updated);
   }
 
   /**
    * Elimina una actividad por su ID.
    */
-  static async deleteActivity(id: string): Promise<boolean> {
-    const existing = await prisma.activity.findUnique({
-      where: { id },
-      select: { id: true },
-    });
+  async deleteActivity(id: string): Promise<boolean> {
+    return this.activityRepo.delete(id);
+  }
 
-    if (!existing) {
-      return false;
-    }
+  // --- Métodos estáticos delegados para retrocompatibilidad total ---
+  private static instance = new ActivityService();
 
-    await prisma.activity.delete({
-      where: { id },
-    });
+  static createActivity(projectId: string, data: CreateActivityInput) {
+    return ActivityService.instance.createActivity(projectId, data);
+  }
 
-    return true;
+  static updateActivity(id: string, data: UpdateActivityInput) {
+    return ActivityService.instance.updateActivity(id, data);
+  }
+
+  static deleteActivity(id: string) {
+    return ActivityService.instance.deleteActivity(id);
   }
 }

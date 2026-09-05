@@ -1,7 +1,4 @@
-import {
-  CPI_INTERPRETATION,
-  SPI_INTERPRETATION,
-} from '@/core/evm/evm.constants';
+import { CPI_INTERPRETATION, SPI_INTERPRETATION } from '@/core/evm/evm.constants';
 
 export const openApiSpec = {
   openapi: '3.0.3',
@@ -41,6 +38,31 @@ export const openApiSpec = {
         description:
           'Retorna el catálogo completo de proyectos registrados. Cada elemento incluye metadatos básicos, conteo de actividades y el consolidado acumulado de presupuesto (BAC), valor ganado (EV), costo real (AC) e índices de desempeño (CPI, SPI). Si un proyecto no tiene actividades, sus agregados retornan 0 y los índices null sin generar excepción.',
         operationId: 'getAllProjects',
+        parameters: [
+          {
+            name: 'page',
+            in: 'query',
+            required: false,
+            description: 'Número de página a consultar (base 1).',
+            schema: {
+              type: 'integer',
+              default: 1,
+              minimum: 1,
+            },
+          },
+          {
+            name: 'limit',
+            in: 'query',
+            required: false,
+            description: 'Cantidad de elementos por página (máximo 100).',
+            schema: {
+              type: 'integer',
+              default: 10,
+              minimum: 1,
+              maximum: 100,
+            },
+          },
+        ],
         responses: {
           '200': {
             description: 'Lista de proyectos obtenida exitosamente.',
@@ -487,8 +509,7 @@ export const openApiSpec = {
       delete: {
         tags: ['Activities'],
         summary: 'Eliminar una actividad',
-        description:
-          'Elimina permanentemente una actividad individual por su identificador UUID.',
+        description: 'Elimina permanentemente una actividad individual por su identificador UUID.',
         operationId: 'deleteActivity',
         parameters: [
           {
@@ -681,8 +702,7 @@ export const openApiSpec = {
             type: 'string',
             maxLength: 500,
             description: 'Descripción actualizada del proyecto.',
-            example:
-              'Despliegue inicial de módulos financiero y logístico con alcance ajustado.',
+            example: 'Despliegue inicial de módulos financiero y logístico con alcance ajustado.',
           },
         },
       },
@@ -986,8 +1006,7 @@ export const openApiSpec = {
         properties: {
           pv: {
             type: 'number',
-            description:
-              'Valor Planificado (Planned Value): (plannedProgress / 100) * BAC.',
+            description: 'Valor Planificado (Planned Value): (plannedProgress / 100) * BAC.',
             example: 5000,
           },
           ev: {
@@ -1166,6 +1185,47 @@ export const openApiSpec = {
           message: {
             type: 'string',
             example: 'Operación completada exitosamente',
+          },
+        },
+      },
+      PaginationMeta: {
+        type: 'object',
+        required: ['totalItems', 'totalPages', 'currentPage', 'pageSize'],
+        properties: {
+          totalItems: {
+            type: 'integer',
+            description: 'Total de proyectos encontrados.',
+            example: 15,
+          },
+          totalPages: {
+            type: 'integer',
+            description: 'Total de páginas disponibles.',
+            example: 2,
+          },
+          currentPage: {
+            type: 'integer',
+            description: 'Página actual.',
+            example: 1,
+          },
+          pageSize: {
+            type: 'integer',
+            description: 'Cantidad de proyectos por página.',
+            example: 10,
+          },
+        },
+      },
+      PaginatedProjectsResponse: {
+        type: 'object',
+        required: ['items', 'meta'],
+        properties: {
+          items: {
+            type: 'array',
+            items: {
+              $ref: '#/components/schemas/ProjectListItemResponse',
+            },
+          },
+          meta: {
+            $ref: '#/components/schemas/PaginationMeta',
           },
         },
       },
