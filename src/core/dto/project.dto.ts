@@ -9,8 +9,14 @@ export const CreateProjectSchema = z.object({
 
 export const UpdateProjectSchema = CreateProjectSchema.partial();
 
+export const PaginationQuerySchema = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(10),
+});
+
 export type CreateProjectInput = z.infer<typeof CreateProjectSchema>;
 export type UpdateProjectInput = z.infer<typeof UpdateProjectSchema>;
+export type PaginationQuery = z.infer<typeof PaginationQuerySchema>;
 
 export interface ProjectDetailResponse {
   id: string;
@@ -36,4 +42,16 @@ export interface ProjectListItemResponse {
   spi: number | null;
   costInterpretation: string;
   scheduleInterpretation: string;
+}
+
+export interface PaginationMeta {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+}
+
+export interface PaginatedProjectsResponse {
+  items: ProjectListItemResponse[];
+  meta: PaginationMeta;
 }

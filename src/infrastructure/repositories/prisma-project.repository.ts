@@ -2,6 +2,7 @@ import { prisma } from '@/infrastructure/db/prisma';
 import {
   IProjectRepository,
   ProjectWithActivities,
+  FindProjectsParams,
 } from '@/core/repositories/project.repository.interface';
 import { CreateProjectInput, UpdateProjectInput } from '@/core/dto/project.dto';
 import { Project } from '@prisma/client';
@@ -10,8 +11,10 @@ import { Project } from '@prisma/client';
  * Adaptador de infraestructura que implementa IProjectRepository utilizando Prisma ORM.
  */
 export class PrismaProjectRepository implements IProjectRepository {
-  async findAllWithActivities(): Promise<ProjectWithActivities[]> {
+  async findAllWithActivities(params?: FindProjectsParams): Promise<ProjectWithActivities[]> {
     return prisma.project.findMany({
+      skip: params?.skip,
+      take: params?.take,
       include: {
         activities: true,
       },
@@ -19,6 +22,10 @@ export class PrismaProjectRepository implements IProjectRepository {
         createdAt: 'desc',
       },
     });
+  }
+
+  async count(): Promise<number> {
+    return prisma.project.count();
   }
 
   async findByIdWithActivities(id: string): Promise<ProjectWithActivities | null> {

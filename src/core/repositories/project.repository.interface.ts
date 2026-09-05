@@ -5,15 +5,25 @@ export type ProjectWithActivities = Project & {
   activities: Activity[];
 };
 
+export interface FindProjectsParams {
+  skip?: number;
+  take?: number;
+}
+
 /**
  * Contrato de abstracción (Puerto) para la persistencia y consulta de proyectos.
  * Desacopla la lógica de aplicación del ORM o base de datos subyacente.
  */
 export interface IProjectRepository {
   /**
-   * Obtiene todos los proyectos incluyendo sus actividades.
+   * Obtiene proyectos incluyendo sus actividades, con soporte opcional de paginación.
    */
-  findAllWithActivities(): Promise<ProjectWithActivities[]>;
+  findAllWithActivities(_params?: FindProjectsParams): Promise<ProjectWithActivities[]>;
+
+  /**
+   * Retorna el conteo total de proyectos registrados.
+   */
+  count(): Promise<number>;
 
   /**
    * Obtiene un proyecto específico por ID con sus actividades ordenadas por fecha de creación.
