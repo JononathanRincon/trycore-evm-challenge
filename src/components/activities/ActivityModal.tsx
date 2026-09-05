@@ -3,7 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CreateActivityInput, CreateActivitySchema } from '@/core/dto/activity.dto';
+import {
+  CreateActivityInput,
+  CreateActivitySchema,
+} from '@/core/dto/activity.dto';
 
 interface ActivityModalProps {
   isOpen: boolean;
@@ -76,7 +79,8 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
       await onSubmit(data);
       onClose();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Error al guardar la actividad';
+      const message =
+        err instanceof Error ? err.message : 'Error al guardar la actividad';
       setSubmitError(message);
     }
   };
@@ -90,7 +94,10 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
     >
       <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl border border-slate-200">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h3 id="activity-modal-title" className="text-lg font-bold text-slate-900">
+          <h3
+            id="activity-modal-title"
+            className="text-lg font-bold text-slate-900"
+          >
             {isEditing ? 'Editar Actividad' : 'Nueva Actividad'}
           </h3>
           <button
@@ -109,7 +116,11 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onFormSubmit)} className="mt-4 space-y-4" noValidate>
+        <form
+          onSubmit={handleSubmit(onFormSubmit)}
+          className="mt-4 space-y-4"
+          noValidate
+        >
           {/* Nombre */}
           <div>
             <label
@@ -125,7 +136,11 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
               {...register('name')}
               className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
-            {errors.name && <p className="mt-1 text-xs text-rose-600">{errors.name.message}</p>}
+            {errors.name && (
+              <p className="mt-1 text-xs text-rose-600">
+                {errors.name.message}
+              </p>
+            )}
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -146,7 +161,11 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                 {...register('bac', { valueAsNumber: true })}
                 className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
-              {errors.bac && <p className="mt-1 text-xs text-rose-600">{errors.bac.message}</p>}
+              {errors.bac && (
+                <p className="mt-1 text-xs text-rose-600">
+                  {errors.bac.message}
+                </p>
+              )}
             </div>
 
             {/* Costo Real (AC) */}
@@ -167,7 +186,9 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                 className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
               {errors.actualCost && (
-                <p className="mt-1 text-xs text-rose-600">{errors.actualCost.message}</p>
+                <p className="mt-1 text-xs text-rose-600">
+                  {errors.actualCost.message}
+                </p>
               )}
             </div>
           </div>
@@ -192,7 +213,9 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                 className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
               {errors.plannedProgress && (
-                <p className="mt-1 text-xs text-rose-600">{errors.plannedProgress.message}</p>
+                <p className="mt-1 text-xs text-rose-600">
+                  {errors.plannedProgress.message}
+                </p>
               )}
             </div>
 
@@ -215,14 +238,16 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                 className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
               {errors.actualProgress && (
-                <p className="mt-1 text-xs text-rose-600">{errors.actualProgress.message}</p>
+                <p className="mt-1 text-xs text-rose-600">
+                  {errors.actualProgress.message}
+                </p>
               )}
             </div>
           </div>
 
           <p className="text-[11px] text-slate-500 italic">
-            * Nota: Un avance real del 0% es perfectamente válido y representa una actividad aún no
-            iniciada.
+            * Nota: Un avance real del 0% es perfectamente válido y representa
+            una actividad aún no iniciada.
           </p>
 
           <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">

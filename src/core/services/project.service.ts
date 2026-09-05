@@ -20,7 +20,10 @@ export class ProjectService {
   private projectRepo: IProjectRepository;
   private activityService: typeof ActivityService;
 
-  constructor(projectRepo?: IProjectRepository, activityService?: typeof ActivityService) {
+  constructor(
+    projectRepo?: IProjectRepository,
+    activityService?: typeof ActivityService
+  ) {
     this.projectRepo = projectRepo ?? new PrismaProjectRepository();
     this.activityService = activityService ?? ActivityService;
   }
@@ -29,13 +32,17 @@ export class ProjectService {
    * Lista todos los proyectos con métricas agregadas y de rendimiento.
    * Soporta paginación eficiente en base de datos.
    */
-  async getAllProjects(query?: PaginationQuery): Promise<PaginatedProjectsResponse> {
+  async getAllProjects(
+    query?: PaginationQuery
+  ): Promise<PaginatedProjectsResponse> {
     const skip = query ? (query.page - 1) * query.limit : undefined;
     const take = query ? query.limit : undefined;
 
     // Ejecución paralela eficiente de consulta de página y conteo total (Vercel Best Practice async-parallel)
     const [projects, totalItems] = await Promise.all([
-      this.projectRepo.findAllWithActivities(query ? { skip, take } : undefined),
+      this.projectRepo.findAllWithActivities(
+        query ? { skip, take } : undefined
+      ),
       this.projectRepo.count(),
     ]);
 

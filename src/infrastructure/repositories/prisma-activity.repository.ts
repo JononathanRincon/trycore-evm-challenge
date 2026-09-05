@@ -1,6 +1,9 @@
 import { prisma } from '@/infrastructure/db/prisma';
 import { IActivityRepository } from '@/core/repositories/activity.repository.interface';
-import { CreateActivityInput, UpdateActivityInput } from '@/core/dto/activity.dto';
+import {
+  CreateActivityInput,
+  UpdateActivityInput,
+} from '@/core/dto/activity.dto';
 import { Activity } from '@prisma/client';
 
 /**
@@ -21,7 +24,10 @@ export class PrismaActivityRepository implements IActivityRepository {
     });
   }
 
-  async create(projectId: string, data: CreateActivityInput): Promise<Activity> {
+  async create(
+    projectId: string,
+    data: CreateActivityInput
+  ): Promise<Activity> {
     return prisma.activity.create({
       data: {
         name: data.name,
@@ -34,7 +40,10 @@ export class PrismaActivityRepository implements IActivityRepository {
     });
   }
 
-  async update(id: string, data: UpdateActivityInput): Promise<Activity | null> {
+  async update(
+    id: string,
+    data: UpdateActivityInput
+  ): Promise<Activity | null> {
     const existing = await prisma.activity.findUnique({
       where: { id },
       select: { id: true },
@@ -49,8 +58,12 @@ export class PrismaActivityRepository implements IActivityRepository {
       data: {
         ...(data.name !== undefined && { name: data.name }),
         ...(data.bac !== undefined && { bac: data.bac }),
-        ...(data.plannedProgress !== undefined && { plannedProgress: data.plannedProgress }),
-        ...(data.actualProgress !== undefined && { actualProgress: data.actualProgress }),
+        ...(data.plannedProgress !== undefined && {
+          plannedProgress: data.plannedProgress,
+        }),
+        ...(data.actualProgress !== undefined && {
+          actualProgress: data.actualProgress,
+        }),
         ...(data.actualCost !== undefined && { actualCost: data.actualCost }),
       },
     });

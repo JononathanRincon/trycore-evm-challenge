@@ -1,4 +1,7 @@
-import { CPI_INTERPRETATION, SPI_INTERPRETATION } from '@/core/evm/evm.constants';
+import {
+  CPI_INTERPRETATION,
+  SPI_INTERPRETATION,
+} from '@/core/evm/evm.constants';
 
 export const openApiSpec = {
   openapi: '3.0.3',
@@ -164,7 +167,8 @@ export const openApiSpec = {
         ],
         responses: {
           '200': {
-            description: 'Detalle del proyecto y métricas EVM obtenido exitosamente.',
+            description:
+              'Detalle del proyecto y métricas EVM obtenido exitosamente.',
             content: {
               'application/json': {
                 schema: {
@@ -348,7 +352,8 @@ export const openApiSpec = {
                   $ref: '#/components/schemas/SuccessMessageResponse',
                 },
                 example: {
-                  message: 'Proyecto y sus actividades asociadas eliminados exitosamente',
+                  message:
+                    'Proyecto y sus actividades asociadas eliminados exitosamente',
                 },
               },
             },
@@ -376,7 +381,8 @@ export const openApiSpec = {
         ],
         requestBody: {
           required: true,
-          description: 'Datos de la actividad con presupuesto y porcentajes de avance.',
+          description:
+            'Datos de la actividad con presupuesto y porcentajes de avance.',
           content: {
             'application/json': {
               schema: {
@@ -509,7 +515,8 @@ export const openApiSpec = {
       delete: {
         tags: ['Activities'],
         summary: 'Eliminar una actividad',
-        description: 'Elimina permanentemente una actividad individual por su identificador UUID.',
+        description:
+          'Elimina permanentemente una actividad individual por su identificador UUID.',
         operationId: 'deleteActivity',
         parameters: [
           {
@@ -581,7 +588,8 @@ export const openApiSpec = {
               details: [
                 {
                   field: 'bac',
-                  message: 'El BAC (presupuesto planificado) no puede ser negativo',
+                  message:
+                    'El BAC (presupuesto planificado) no puede ser negativo',
                 },
                 {
                   field: 'actualProgress',
@@ -702,7 +710,8 @@ export const openApiSpec = {
             type: 'string',
             maxLength: 500,
             description: 'Descripción actualizada del proyecto.',
-            example: 'Despliegue inicial de módulos financiero y logístico con alcance ajustado.',
+            example:
+              'Despliegue inicial de módulos financiero y logístico con alcance ajustado.',
           },
         },
       },
@@ -834,7 +843,8 @@ export const openApiSpec = {
           },
           activities: {
             type: 'array',
-            description: 'Listado de actividades con métricas individuales calculadas.',
+            description:
+              'Listado de actividades con métricas individuales calculadas.',
             items: {
               $ref: '#/components/schemas/ActivityWithEvmResponse',
             },
@@ -875,7 +885,8 @@ export const openApiSpec = {
           bac: {
             type: 'number',
             minimum: 0,
-            description: 'Presupuesto total planificado (Budget at Completion).',
+            description:
+              'Presupuesto total planificado (Budget at Completion).',
             example: 10000,
           },
           plannedProgress: {
@@ -913,7 +924,13 @@ export const openApiSpec = {
       },
       CreateActivityInput: {
         type: 'object',
-        required: ['name', 'bac', 'plannedProgress', 'actualProgress', 'actualCost'],
+        required: [
+          'name',
+          'bac',
+          'plannedProgress',
+          'actualProgress',
+          'actualCost',
+        ],
         properties: {
           name: {
             type: 'string',
@@ -946,7 +963,8 @@ export const openApiSpec = {
           actualCost: {
             type: 'number',
             minimum: 0,
-            description: 'Costo financiero real erogado (AC). No puede ser negativo.',
+            description:
+              'Costo financiero real erogado (AC). No puede ser negativo.',
             example: 6000,
           },
         },
@@ -1006,7 +1024,8 @@ export const openApiSpec = {
         properties: {
           pv: {
             type: 'number',
-            description: 'Valor Planificado (Planned Value): (plannedProgress / 100) * BAC.',
+            description:
+              'Valor Planificado (Planned Value): (plannedProgress / 100) * BAC.',
             example: 5000,
           },
           ev: {
@@ -1074,7 +1093,8 @@ export const openApiSpec = {
               SPI_INTERPRETATION.BEHIND,
               SPI_INTERPRETATION.ON_TIME,
             ],
-            description: 'Interpretación semántica del índice de cronograma SPI.',
+            description:
+              'Interpretación semántica del índice de cronograma SPI.',
             example: SPI_INTERPRETATION.BEHIND,
           },
         },
@@ -1093,11 +1113,18 @@ export const openApiSpec = {
         allOf: [
           {
             type: 'object',
-            required: ['totalBac', 'totalPv', 'totalEv', 'totalAc', 'activitiesCount'],
+            required: [
+              'totalBac',
+              'totalPv',
+              'totalEv',
+              'totalAc',
+              'activitiesCount',
+            ],
             properties: {
               totalBac: {
                 type: 'number',
-                description: 'Presupuesto total consolidado de todas las actividades.',
+                description:
+                  'Presupuesto total consolidado de todas las actividades.',
                 example: 30000,
               },
               totalPv: {
@@ -1165,7 +1192,8 @@ export const openApiSpec = {
           },
           details: {
             type: 'array',
-            description: 'Lista detallada de validaciones fallidas cuando aplica.',
+            description:
+              'Lista detallada de validaciones fallidas cuando aplica.',
             items: {
               $ref: '#/components/schemas/ValidationErrorDetail',
             },

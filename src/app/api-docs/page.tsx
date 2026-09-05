@@ -31,8 +31,8 @@ export default function ApiDocsPage() {
               </h1>
             </div>
             <p className="mt-1 text-sm text-slate-600">
-              Contratos interactivos y especificación formal de los 8 endpoints REST para proyectos
-              y actividades.
+              Contratos interactivos y especificación formal de los 8 endpoints
+              REST para proyectos y actividades.
             </p>
           </div>
           <div className="flex items-center gap-3">

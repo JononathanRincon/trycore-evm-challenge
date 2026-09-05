@@ -1,5 +1,8 @@
 import { ActivityService } from '@/core/services/activity.service';
-import { CreateActivitySchema, CreateActivityInput } from '@/core/dto/activity.dto';
+import {
+  CreateActivitySchema,
+  CreateActivityInput,
+} from '@/core/dto/activity.dto';
 import { ApiResponse } from '@/infrastructure/http/api-response';
 import { createApiHandler } from '@/infrastructure/http/api-handler';
 
@@ -14,7 +17,9 @@ export const POST = createApiHandler<CreateActivityInput, RouteParams>({
     const activity = await ActivityService.createActivity(params.id, body);
 
     if (!activity) {
-      return ApiResponse.notFound(`Proyecto con ID '${params.id}' no encontrado`);
+      return ApiResponse.notFound(
+        `Proyecto con ID '${params.id}' no encontrado`
+      );
     }
 
     return ApiResponse.created(activity);

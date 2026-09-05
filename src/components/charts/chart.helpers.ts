@@ -29,7 +29,9 @@ export function transformActivitiesForChart(
 ): ActivityChartDataPoint[] {
   return activities.map((activity, idx) => {
     const truncatedName =
-      activity.name.length > 18 ? `${activity.name.slice(0, 16)}...` : activity.name;
+      activity.name.length > 18
+        ? `${activity.name.slice(0, 16)}...`
+        : activity.name;
 
     return {
       name: truncatedName || `Actividad ${idx + 1}`,

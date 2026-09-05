@@ -13,7 +13,9 @@ export const CreateActivitySchema = z.object({
     .min(0, 'El porcentaje planificado debe ser mayor o igual a 0')
     .max(100, 'El porcentaje planificado no puede exceder 100'),
   actualProgress: z
-    .number({ invalid_type_error: 'El porcentaje real completado es requerido' })
+    .number({
+      invalid_type_error: 'El porcentaje real completado es requerido',
+    })
     .min(0, 'El porcentaje real completado debe ser mayor o igual a 0')
     .max(100, 'El porcentaje real completado no puede exceder 100'),
   actualCost: z
@@ -48,4 +50,6 @@ export const ActivityWithEvmResponseSchema = z.object({
 
 export type CreateActivityInput = z.infer<typeof CreateActivitySchema>;
 export type UpdateActivityInput = z.infer<typeof UpdateActivitySchema>;
-export type ActivityWithEvmResponse = z.infer<typeof ActivityWithEvmResponseSchema>;
+export type ActivityWithEvmResponse = z.infer<
+  typeof ActivityWithEvmResponseSchema
+>;

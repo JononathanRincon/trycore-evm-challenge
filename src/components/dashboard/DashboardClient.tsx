@@ -2,7 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ActivityWithEvmResponse, CreateActivityInput } from '@/core/dto/activity.dto';
+import {
+  ActivityWithEvmResponse,
+  CreateActivityInput,
+} from '@/core/dto/activity.dto';
 import { ConsolidatedMetricsCards } from '@/components/dashboard/ConsolidatedMetricsCards';
 import { ActivityTable } from '@/components/activities/ActivityTable';
 import { ActivityModal } from '@/components/activities/ActivityModal';
@@ -17,18 +20,26 @@ import {
 } from '@/hooks/use-projects';
 
 export default function DashboardClient() {
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
+    null
+  );
 
   // Modales y diálogos
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingActivity, setEditingActivity] = useState<ActivityWithEvmResponse | null>(null);
-  const [deletingActivity, setDeletingActivity] = useState<{ id: string; name: string } | null>(
-    null
-  );
+  const [editingActivity, setEditingActivity] =
+    useState<ActivityWithEvmResponse | null>(null);
+  const [deletingActivity, setDeletingActivity] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
   // TanStack Query Hooks
-  const { data: projects = [], isLoading: isLoadingProjects, error: projectsError } = useProjects();
+  const {
+    data: projects = [],
+    isLoading: isLoadingProjects,
+    error: projectsError,
+  } = useProjects();
 
   // Seleccionar automáticamente el primer proyecto si no hay uno activo
   useEffect(() => {
@@ -76,7 +87,8 @@ export default function DashboardClient() {
       await deleteActivityMutation.mutateAsync(deletingActivity.id);
       setDeletingActivity(null);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Error al eliminar la actividad';
+      const message =
+        err instanceof Error ? err.message : 'Error al eliminar la actividad';
       setActionError(message);
     }
   };
@@ -91,8 +103,10 @@ export default function DashboardClient() {
     setIsModalOpen(true);
   };
 
-  const loading = isLoadingProjects || (Boolean(selectedProjectId) && isLoadingDetail);
-  const generalError = projectsError?.message || detailError?.message || actionError;
+  const loading =
+    isLoadingProjects || (Boolean(selectedProjectId) && isLoadingDetail);
+  const generalError =
+    projectsError?.message || detailError?.message || actionError;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -100,13 +114,16 @@ export default function DashboardClient() {
       <header className="border-b border-slate-200 bg-white px-6 py-4 shadow-2xs">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-indigo-600 p-2 text-white font-black text-sm">EVM</div>
+            <div className="rounded-lg bg-indigo-600 p-2 text-white font-black text-sm">
+              EVM
+            </div>
             <div>
               <h1 className="text-xl font-bold text-slate-900">
                 Trycore EVM Challenge — Dashboard de Gestión
               </h1>
               <p className="text-xs text-slate-500">
-                Control de Costo y Cronograma con Valor Ganado en Tiempo Real (PMI Standard)
+                Control de Costo y Cronograma con Valor Ganado en Tiempo Real
+                (PMI Standard)
               </p>
             </div>
           </div>
@@ -155,7 +172,9 @@ export default function DashboardClient() {
             </select>
           </div>
 
-          <div className="text-xs text-slate-500">{projectDetail?.description}</div>
+          <div className="text-xs text-slate-500">
+            {projectDetail?.description}
+          </div>
         </div>
 
         {generalError && (
@@ -190,8 +209,8 @@ export default function DashboardClient() {
                     Desglose de Actividades e Indicadores Granulares
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Métricas calculadas al vuelo por el motor de negocio según avance real y costos
-                    reportados.
+                    Métricas calculadas al vuelo por el motor de negocio según
+                    avance real y costos reportados.
                   </p>
                 </div>
                 <button

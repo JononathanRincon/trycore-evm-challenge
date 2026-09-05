@@ -64,7 +64,9 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         <div className="flex items-start gap-4">
           <div
             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-              isDanger ? 'bg-rose-100 text-rose-600' : 'bg-indigo-100 text-indigo-600'
+              isDanger
+                ? 'bg-rose-100 text-rose-600'
+                : 'bg-indigo-100 text-indigo-600'
             }`}
           >
             {isDanger ? (
@@ -101,7 +103,10 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           </div>
 
           <div className="flex-1">
-            <h3 id="confirm-dialog-title" className="text-base font-bold text-slate-900">
+            <h3
+              id="confirm-dialog-title"
+              className="text-base font-bold text-slate-900"
+            >
               {title}
             </h3>
             <p
