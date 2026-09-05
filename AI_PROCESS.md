@@ -622,6 +622,11 @@ Para validar la comprensión antes de escribir código, se realizó un ejercicio
 - **Contexto**: El modal de creación de actividades en el frontend duplicaba manualmente con sentencias `if/else` las mismas reglas de validación (rango 0-100, no negatividad de costos, límites de caracteres) ya definidas en `src/core/dto/activity.dto.ts`.
 - **Identificación y Decisión adoptada**: Integrar `react-hook-form` con `@hookform/resolvers/zod` consumiendo directamente el schema `CreateActivitySchema`. Esto elimina código redundante (DRY), garantiza coherencia absoluta entre cliente y servidor, y previene que una actualización de reglas en backend quede desfasada en el frontend.
 
+### Decisión 9: Reemplazo de `confirm()` y `alert()` por componente accesible `ConfirmDialog` y manejo reactivo de errores en React Query
+- **Contexto**: La auditoría identificó llamadas bloqueantes nativas del navegador (`confirm()` y `alert()`) en `DashboardClient.tsx`, que degradan la experiencia de usuario y violan estándares de accesibilidad (WCAG) y buenas prácticas frontend.
+- **Identificación y Decisión adoptada**: Implementación de `ConfirmDialog.tsx` con accesibilidad ARIA completa (`role="dialog"`, `aria-modal="true"`, foco automático en botón cancelar, soporte para tecla `Escape` y desenfoque de fondo con `backdrop-blur`). El flujo de eliminación y errores de mutaciones se delega a estados reactivos en TanStack Query (`isPending`, banners contextuales en Tailwind), logrando 0 llamadas a `alert()` o `confirm()` en toda la base de código.
+
+
 ### Corrección de Proceso Gitflow: Integración vía Pull Requests en GitHub
 - **Incidente en Fase 1**: La rama `feature/data-models` fue integrada a `develop` mediante un comando de merge local con `--no-ff`.
 - **Corrección**: El usuario señaló que el enunciado de Trycore exige: *"Cada feature debe integrarse a develop mediante un Pull Request, aunque trabajes solo"*. Se documenta este error de proceso con total transparencia y se adopta la regla estricta: desde la Fase 2 (`feature/evm-engine`), cada rama de característica se publica en GitHub, se crea un Pull Request real mediante `gh pr create`, y se fusiona a `develop` mediante `gh pr merge`.
