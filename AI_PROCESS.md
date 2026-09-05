@@ -6,12 +6,20 @@ Este documento registra de forma transparente, honesta y cronológica el proceso
 
 ## 1. Herramientas de IA Utilizadas y Justificación
 
-- **Google Antigravity (Gemini 3.8)**: Utilizado como entorno de agente de ingeniería de software con capacidad de ejecución de comandos, lectura de especificaciones (incluyendo el análisis del PDF de la prueba) y refactorización orientada a pruebas.
-  - *¿Por qué se eligió?*: Soporta ejecución multi-herramienta en tiempo real, integración directa con el workspace local, capacidad de análisis de documentos y generación de arquitectura guiada por artefactos de diseño.
+- **Google Antigravity (Gemini 3.8)**: Utilizado como entorno de agente de ingeniería de software con capacidad de ejecución de comandos, lectura de especificaciones (incluyendo el análisis del PDF de la prueba), genera codigo rapido, refactoriza y recomienda mejores arquitecturas y buenas practicas
+  - *¿Por qué se eligió?*: Soporta ejecución multi-herramienta en tiempo real, integración directa con el workspace local, capacidad de análisis de documentos, integración con skill´s y MCP´s, el modelo es rapido, consistente, con buena retención de memoria, aunque en ocaciones pierde el hilo, con un buen proceso de auditoria y seguimiento de un ingeniero de software se resuelve, tengo experiencia desarrollando con este agente igualmente con claude code, me parece que la generacion de codigo es mas rapido y es muy bueno para desglosar un problema y hallar una solución. por finalizar recomienda  y generación de arquitectura guiada por artefactos de diseño.
+
+---
+---
+
+## 2. Decisión de Arquitectura Independiente
+
+- **Adopción de Next.js 14+ (App Router, TypeScript) en Monorepo vs. Separación Spring/FastAPI + React**:
+  - *Justificación*: Permite unificar el tipado de contratos entre API y Frontend sin redundancia de DTOs, garantiza despliegue atómico        en Vercel sin costos de hosting adicionales y mantiene una arquitectura en capas limpia (`app/api/` como controllers delgados             $\rightarrow$ `core/` como servicios y motor puro $\rightarrow$ `infrastructure/` como acceso a datos con Prisma). Tambien el agente      me escogio estas tecnologias, porque cuento con skill´s que me auditan, mejoran, estandariza, realiza pruebas unitarias el codigo,        me propone mejoras en el frontend y en el backend. aplicacion de Principio de Inversión de Dependencias (DIP) de Clean Architecture       y permitiendo inyectar implementaciones en memoria para pruebas unitarias sin hackeos de mockeo a nivel de módulos 
 
 ---
 
-## 2. Registro Cronológico de Prompts Textuales
+## 3. Registro Cronológico de Prompts Textuales
 
 > [!IMPORTANT]
 > Todos los prompts se registran de forma textual e íntegra, sin resúmenes ni parafraseos.
@@ -22,22 +30,22 @@ Este documento registra de forma transparente, honesta y cronológica el proceso
 
 > Esquema usado: **RTF + CIDI** (recomendado para SDD/arquitectura de software: define rol, tarea y formato, y separa contexto/instrucción/detalles/input). Justificación: el problema requiere tanto una decisión de arquitectura fundamentada como una ejecución guiada por fases con restricciones estrictas (Gitflow, cobertura de tests, OpenAPI).
 >
-> Cómo usarlo: pégalo completo en Antigravity como primer mensaje de la sesión. Está pensado para ejecutarse en **fases** (ver sección "Instrucción"): pide al agente que se detenga a confirmar contigo al final de cada fase antes de seguir, así controlas la calidad y puedes ir llenando el AI_PROCESS.md con los prompts reales que uses en cada paso.
+> Está pensado para ejecutarse en **fases** (ver sección "Instrucción"): pide al agente que se detenga a confirmar contigo al final de cada fase antes de seguir, así controlas la calidad y puedes ir llenando el AI_PROCESS.md con los prompts reales que uses en cada paso.
 
 ---
 
 ## ROL
 
-Actúa como un **arquitecto de software y desarrollador fullstack senior**, especializado en TypeScript/Next.js, diseño de APIs REST, y en escribir código production-ready con pruebas exhaustivas. No optimices por velocidad de entrega a costa de claridad: prioriza código legible, capas bien separadas y decisiones justificables. Cuando propongas algo, explica el "por qué" en una línea antes de escribir el código, para que yo pueda registrar esa decisión en mi documento de proceso.
+Actúa como un **arquitecto de software y desarrollador fullstack senior con mas de 10 años de experiencia**, especializado en TypeScript/Next.js, diseño de APIs REST, y en escribir código production-ready con pruebas exhaustivas. No optimices por velocidad de entrega a costa de claridad: prioriza código legible, capas bien separadas y decisiones justificables. Cuando propongas algo, explica el "por qué" en una línea antes de escribir el código, para que yo pueda registrar esa decisión en mi documento de proceso.
 
 ## TAREA
 
-Construir una aplicación fullstack de gestión de proyectos con cálculo automático de indicadores de **Valor Ganado (EVM — Earned Value Management)**, cumpliendo estándares estrictos de testing, arquitectura limpia, Gitflow y documentación OpenAPI. Es una prueba técnica de selección — el código debe demostrar comprensión real de EVM, no solo "que compile".
+Construir una aplicación fullstack de gestión de proyectos con cálculo automático de indicadores de **Valor Ganado (EVM — Earned Value Management)**, cumpliendo estándares estrictos de testing, arquitectura limpia, Gitflow y documentación OpenAPI. Es una prueba técnica de selección, el código debe demostrar comprensión real de EVM, no solo "que compile".
 
 ## FORMATO DE ENTREGA
 
 - Repositorio Git con historial de commits siguiendo Gitflow (no se entrega como ZIP).
-- Código organizado en capas (routes/controllers → services → repositorios/data access), sin lógica de negocio en los controladores.
+- Código organizado en capas (routes/controllers, services, repositorios/data access), sin lógica de negocio en los controladores.
 - Tests unitarios + de integración ejecutables con un solo comando.
 - Documentación OpenAPI accesible en `/api-docs`.
 - `README.md` con instrucciones de instalación, variables de entorno y script de inicialización de base de datos.
@@ -50,7 +58,7 @@ Es una prueba técnica para el cargo de Ingeniero de Desarrollo en Trycore Colom
 
 **Stack elegido (desviación justificada del stack sugerido por Trycore, que pedía Java/Spring o Python/FastAPI + Angular/React):**
 - **Next.js 14+ (App Router, TypeScript)** fullstack — API routes como backend, mismo proyecto para frontend.
-- **Prisma ORM** + **PostgreSQL** (Neon o Vercel Postgres, ambos con tier gratuito serverless).
+- **Prisma ORM** + **PostgreSQL** (Supabase tier gratuito serverless).
 - **Tailwind CSS** + componentes del design system existente (skills `ui-ux-pro-max`, `design-system`).
 - **Recharts** para la gráfica comparativa PV/EV/AC.
 - **Vitest** (o Jest) para unit tests, **Supertest** o `next-test-api-route-handler` para tests de integración de las API routes.
@@ -176,43 +184,6 @@ Antes de escribir código, haz lo siguiente:
    SV positivo "adelantado", pero un CPI/SPI forzado a 1.0 diría
    "a tiempo" — son inconsistentes entre sí).
 
-   // core/evm/evm.calculator.ts
-   const PERCENT_DIVISOR = 100;
-
-   export function calculateActivityEvm(input: ActivityEvmInput): EvmResult {
-     const { bac, plannedProgress, actualProgress, actualCost } = input;
-
-     const pv = (plannedProgress / PERCENT_DIVISOR) * bac;
-     const ev = (actualProgress / PERCENT_DIVISOR) * bac;
-     const cv = ev - actualCost;
-     const sv = ev - pv;
-
-     const cpi = actualCost > 0 ? ev / actualCost : null;
-     const spi = pv > 0 ? ev / pv : null;
-
-     const eac = cpi !== null && cpi > 0 ? bac / cpi : null;
-     const vac = eac !== null ? bac - eac : null;
-
-     return {
-       pv, ev, cv, sv, cpi, spi, eac, vac,
-       costInterpretation: interpretCpi(cpi),
-       scheduleInterpretation: interpretSpi(spi),
-     };
-   }
-
-   function interpretCpi(cpi: number | null): string {
-     if (cpi === null) return 'Sin costos registrados';
-     if (cpi > 1) return 'Bajo presupuesto (eficiente en costos)';
-     if (cpi < 1) return 'Sobre presupuesto (sobrecosto)';
-     return 'En presupuesto';
-   }
-
-   function interpretSpi(spi: number | null): string {
-     if (spi === null) return 'Sin avance planificado';
-     if (spi > 1) return 'Adelantado en cronograma';
-     if (spi < 1) return 'Atrasado en cronograma';
-     return 'A tiempo';
-   }
 
    Aplica la misma regla (null explícito, sin fallback a 1.0) en el cálculo
    consolidado por proyecto sobre los totales de AC y PV. Los tests
@@ -225,7 +196,7 @@ desarrollo de la fase en curso.
 
 ### Prompt 3 (Aprobación y Validación de .gitignore y Remoto):
 ```markdown
-Confirmado. Procede con la Fase 0. Verifica que el .gitignore incluya también node_modules, .next y .env, y revisa si el remoto ya tiene commits antes de hacer push.
+Confirmado. Procede con la Fase 0. Verifica que el .gitignore incluya también node_modules, .next y .env
 ```
 
 ### Prompt 4 (Confirmación de Arquitectura de calculateProjectEvm y Paso a Fase 1):
@@ -240,7 +211,7 @@ No apruebo aún el merge. Antes: (1) reemplaza el Prompt 1 del AI_PROCESS.md por
 
 ### Prompt 6 (Exigencia estricta de Pull Requests en GitHub para integración):
 ```markdown
-Apruebo el modelo, la decisión de Float, el redondeo en la capa de serialización y el shape de error. Antes de Fase 2: a partir de ahora, cada feature branch debe integrarse a develop mediante un Pull Request real en GitHub, no con git merge local — aunque trabajes solo, así lo exige el enunciado. Documenta en AI_PROCESS.md que la Fase 1 se mergeó localmente por un error de proceso, y que se corrige desde la Fase 2 en adelante. Con eso, procede con feature/evm-engine y esta vez ciérrala con PR.
+Apruebo el modelo, la decisión de Float, el redondeo en la capa de serialización y el shape de error. Antes de Fase 2: a partir de ahora, cada feature branch debe integrarse a develop mediante un Pull Request real en GitHub, no con git merge local, aunque trabajes solo, así lo exige el enunciado. Documenta en AI_PROCESS.md que la Fase 1 se mergeó localmente por un error de proceso, y que se corrige desde la Fase 2 en adelante. Con eso, procede con feature/evm-engine y esta vez ciérrala con PR.
 ```
 
 ### Prompt 7 (Adopción de PLAN.md canónico y solicitud de comparación):
@@ -318,7 +289,7 @@ Autorizo crear la rama feature/openapi-docs y proceder con:
    cargado como Client Component (ssr: false) siguiendo el patrón de
    composición de vercel-react-best-practices para este caso puntual.
 Antes de generar migraciones o escribir código: confírmame el listado
-completo de los 7 endpoints que vas a documentar en el spec OpenAPI
+completo de los 8 endpoints que vas a documentar en el spec OpenAPI
 (método + ruta + tag), para revisar que ninguno quede fuera antes de
 que escribas el archivo completo.
 
@@ -377,20 +348,17 @@ Al terminar responde con la línea "HITO DE PARADA: /api-docs visible" y
 espera mi confirmación antes de tocar Fase 5.
 ```
 
-### Prompt 15 (Transición a Supabase PostgreSQL y Configuración de Datasource):
+### Prompt 15 (despliegue en Supabase PostgreSQL y Configuración de Datasource):
 ```markdown
-DECISIÓN: cambiamos de Neon a Supabase como proveedor de PostgreSQL para
+DECISIÓN: Vamos a utilizar Supabase como proveedor de PostgreSQL para
 desarrollo. Misma naturaleza (Postgres serverless gestionado), sin impacto
 en el modelo de datos ni en Prisma. Documenta este cambio en AI_PROCESS.md
 como desviación menor de la decisión de stack original.
 
-1. Instala Prisma como devDependency si no está ya:
-   npm install prisma --save-dev
+1. Verifica que .env está en .gitignore. Si no lo está, agrégalo ANTES de
+   crear el archivo, no continúes sin esto confirmado.
 
-2. Verifica que .env está en .gitignore. Si no lo está, agrégalo ANTES de
-   crear el archivo — no continúes sin esto confirmado.
-
-3. Crea el archivo .env (no .env.example) con estas dos variables. Voy a
+2. Crea el archivo .env (no .env.example) con estas dos variables. Voy a
    reemplazar el password yo mismo directamente en el archivo después de
    que lo crees con el placeholder:
 
@@ -411,7 +379,7 @@ valida si se logra conectar? sino mencionalo primero
      directUrl = env("DIRECT_URL")
    }
 
-5. NO corras prisma init si ya existe prisma/schema.prisma — verifica
+5. NO corras prisma init si ya existe prisma/schema.prisma, verifica
    primero que no sobrescribas el schema con las entidades Project/Activity
    ya modeladas en Fase 1. Si el archivo ya existe, solo edita el bloque
    datasource.
@@ -434,7 +402,7 @@ No avances a git add/commit/PR hasta que confirmes el 200 real con datos.
 NO instales ni ejecutes paquetes npx adicionales (como skills de terceros)
 sin que yo los autorice explícitamente primero.
 ```
-> *Nota de seguridad*: Se reemplazó la credencial sensible original por `[REDACTADO POR SEGURIDAD]`. Dicha credencial fue expuesta temporalmente en el prompt y rotada inmediatamente tras la interacción; se omite del registro histórico por buenas prácticas de seguridad de la información. El resto del prompt se mantiene textual.
+> *Nota de seguridad*: Se reemplazó la credencial sensible original por `[REDACTADO POR SEGURIDAD]`. Dicha credencial fue expuesta temporalmente en el prompt y rotada inmediatamente tras la interacción, se omite del registro histórico por buenas prácticas de seguridad de la información. El resto del prompt se mantiene textual.
 
 ### Prompt 16 (Verificación de falso negativo en Swagger UI y cierre de Fase 4):
 ```markdown
@@ -529,7 +497,7 @@ si apruebo, aparte te comento que aqui tengo desplegado el aplicativo Dashboard 
 Documentación Interactiva Swagger UI:👉 https://trycore-evm-challenge.vercel.app/api-docs
 Endpoint del Spec OpenAPI 3.0 (JSON):👉 https://trycore-evm-challenge.vercel.app/api/docs
 Deployment Inspect (Vercel Console):👉 https://vercel.com/jonathanandres080-6851s-projects/trycore-evm-challenge
-y este es el token de vercel si lo necesitas del proyecto este es el token de vercel [REDACTADO POR SEGURIDAD]
+y este es el token de vercel [REDACTADO POR SEGURIDAD] para que realices la integracion por CLI-VERCEL usando la habilidad vercel-cli-with-tokens, Nota te comparto el token, pero no lo va a registrar en el AI_PROCESS.md dejalo como placehonder, [REDACTADO POR SEGURIDAD]
 ```
 
 ### Prompt 22 (Validación de Conformidad con Gitflow según Prueba Técnica):
@@ -544,7 +512,7 @@ si veo todo fue cumplido exitosamente, continuemos con la fase 2
 
 ### Prompt 24 (Consulta sobre Ejecución y Cobertura de Pruebas Unitarias e Integrales):
 ```markdown
-realizaste pruebas unitarias e integrales?
+realizaste pruebas unitarias e integrales?, En el mensaje output de salida no veo, que realizaste pruebas integrales mas que todo unitarias?
 ```
 
 ### Prompt 25 (Verificación de Buenas Prácticas de Gitflow e Integración por Ramas hacia develop):
@@ -556,35 +524,6 @@ y como quedo en el gitflow se esta registrando conforme con las buenas practicas
 ```markdown
 ya existe un release puedes consultar cual es el ultimo para no crear o modificar el mismo release, podemos avanzar en la fase 3
 ```
-
----
-
-## 3. Aprendizaje y Validación de EVM
-
-### ¿Cómo aprendí EVM y cómo validé las fórmulas?
-EVM (*Earned Value Management*) integra tres dimensiones críticas en la gestión de proyectos:
-1. **Alcance planificado expresado en valor monetario**: Valor Planificado ($PV = \%Planificado \times BAC$).
-2. **Trabajo efectivamente completado**: Valor Ganado ($EV = \%Real \times BAC$).
-3. **Costo financiero real consumido**: Costo Real ($AC$).
-
-Para validar la comprensión antes de escribir código, se realizó un ejercicio de verificación manual:
-- **Escenario Testigo**:
-  - Actividad: "Diseño y Prototipado"
-  - $BAC = \$10,000$ USD
-  - $\%$ Planificado $= 50\%$
-  - $\%$ Real completado $= 40\%$
-  - $AC = \$6,000$ USD
-- **Cálculos manuales paso a paso**:
-  - $PV = 0.50 \times 10,000 = \$5,000$
-  - $EV = 0.40 \times 10,000 = \$4,000$
-  - $CV = EV - AC = 4,000 - 6,000 = -\$2,000$ (Variación de costo negativa $\implies$ Sobrecosto).
-  - $SV = EV - PV = 4,000 - 5,000 = -\$1,000$ (Variación de cronograma negativa $\implies$ Retraso).
-  - $CPI = EV / AC = 4,000 / 6,000 \approx 0.6667$ ($< 1.0 \implies$ Sobre presupuesto).
-  - $SPI = EV / PV = 4,000 / 5,000 = 0.80$ ($< 1.0 \implies$ Atrasado en cronograma).
-  - $EAC = BAC / CPI = 10,000 / (4,000 / 6,000) = \$15,000$ (El proyecto terminará costando \$15,000 en lugar de \$10,000).
-  - $VAC = BAC - EAC = 10,000 - 15,000 = -\$5,000$ (Déficit presupuestal proyectado).
-
----
 
 ## 4. Decisiones donde NO se siguió la sugerencia de la IA
 
@@ -607,7 +546,6 @@ Para validar la comprensión antes de escribir código, se realizó un ejercicio
 - **Identificación y Decisión adoptada**: El análisis riguroso de la superficie de la API arrojó 8 operaciones REST implementadas (`5` en Projects + `3` en Activities, incluyendo `DELETE /api/activities/{id}`). Se tomó la decisión explícita de incluir las 8 operaciones completas en el contrato OpenAPI 3.0. Un contrato documentado que omite operaciones reales existentes (como la eliminación de actividades) constituye una especificación incompleta y rompe el principio de verdad única entre implementación y documentación.
 
 ### Decisión 5: Adopción de Supabase como proveedor gestionado de PostgreSQL para desarrollo y producción
-- **Contexto**: El plan inicial contemplaba Neon / Vercel Postgres.
 - **Identificación y Decisión adoptada**: Se seleccionó Supabase como proveedor de PostgreSQL serverless gestionado. Representa la misma naturaleza relacional estándar de PostgreSQL sin impacto en las entidades de Prisma ni en la lógica de negocio. Para garantizar compatibilidad óptima con Prisma y serverless, se configuró el datasource con arquitectura de doble URL en `prisma/schema.prisma`: `DATABASE_URL` apuntando al Transaction-Mode pooler (puerto 6543 con PgBouncer) para las consultas de la aplicación, y `DIRECT_URL` apuntando al Session-Mode pooler (puerto 5432) para la ejecución segura de migraciones DDL (`prisma migrate dev`).
 
 ### Decisión 6: Elección de gráfico de barras agrupadas vs. líneas para la comparativa EVM por actividad
@@ -637,26 +575,16 @@ Para validar la comprensión antes de escribir código, se realizó un ejercicio
 - **Impacto en el historial**: Si bien el código resultante, los tests y la funcionalidad de OpenAPI y Supabase quedaron íntegros y validados en `develop`, se perdió la granularidad individual de los commits de la rama en el grafo de Git (`git log --graph`), contrastando visualmente con los merge commits explícitos de los PRs #1, #2 y #3.
 - **Corrección adoptada**: Conforme a la buena práctica de no reescribir la historia pública de Git una vez compartida en el repositorio remoto, se mantuvo el commit sin forzar un rebase destructivo y se aplicó la disciplina estricta a partir de la Fase 5: el PR #5 (`feature/dashboard-ui`) se integró explícitamente con merge commit tradicional (`Merge pull request #5 from JononathanRincon/feature/dashboard-ui`, commit `ea97698`), preservando la trazabilidad de Gitflow.
 
----
 
-## 5. Decisión de Arquitectura Independiente
-
-- **Adopción de Next.js 14+ (App Router, TypeScript) en Monorepo vs. Separación Spring/FastAPI + React**:
-  - *Justificación*: Permite unificar el tipado de contratos entre API y Frontend sin redundancia de DTOs, garantiza despliegue atómico en Vercel sin costos de hosting adicionales y mantiene una arquitectura en capas limpia (`app/api/` como controllers delgados $\rightarrow$ `core/` como servicios y motor puro $\rightarrow$ `infrastructure/` como acceso a datos con Prisma).
-
----
 
 ## 6. Reflexión Honesta: ¿Qué haría diferente?
 
 1. **Disciplina estricta en las banderas del CLI de GitHub (`gh pr merge`)**:
    - *Lección aprendida*: La integración del PR #4 mediante `--squash` demostró que asumir el comportamiento por defecto de herramientas CLI puede romper convenciones de equipo (Gitflow con merge commits obligatorios). En un proyecto productivo o colaborativo, configuraría reglas de protección de rama en GitHub (`Require linear history` desactivado, y restringir las opciones de merge del repositorio exclusivamente a *Allow merge commits*, deshabilitando *Squash merging* y *Rebase merging* a nivel de configuración de repositorio).
 
-2. **Gestión preventiva de secretos y variables de entorno**:
-   - *Lección aprendida*: La exposición temporal de una credencial de base de datos en un prompt interactivo (que motivó su inmediata rotación y reemplazo por `[REDACTADO POR SEGURIDAD]`) resalta la importancia de adoptar desde el primer minuto un gestor de secretos o herramientas locales como `dotenv-vault` o el CLI de Doppler/Supabase (`supabase link`), evitando manipular contraseñas directamente en mensajes o prompts compartidos con agentes de IA.
-
-3. **Pruebas End-to-End (Playwright / Cypress) automatizadas para la UI**:
+2. **Pruebas End-to-End (Playwright / Cypress) automatizadas para la UI**:
    - *Lección aprendida*: La suite de pruebas unitarias y de integración se amplió a 64 tests automáticos en Vitest cubriendo el 100% del motor EVM, los servicios de aplicación desacoplados por el Patrón Repositorio y las API routes paginadas. Aunque la interacción visual del dashboard ahora cuenta con TanStack Query y componentes modales accesibles, incorporar pruebas E2E automatizadas con Playwright en el pipeline de CI cerraría el ciclo de aseguramiento de calidad de forma 100% desatendida en el navegador.
 
-4. **Automatización de Quality Gates desde el día cero**:
+3. **Automatización de Quality Gates desde el día cero**:
    - *Lección aprendida*: Configurar el pipeline de GitHub Actions (`ci.yml`) desde el inicio del proyecto asegura que cada Pull Request sea evaluado de manera idéntica al entorno de producción (verificando Prettier, ESLint, cobertura en Vitest y `next build`). La incorporación de este gate en la versión 1.1.0 eleva la madurez operativa del repositorio a un nivel de estándar industrial.
 
