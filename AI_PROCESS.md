@@ -582,9 +582,9 @@ ya existe un release puedes consultar cual es el ultimo para no crear o modifica
 1. **Disciplina estricta en las banderas del CLI de GitHub (`gh pr merge`)**:
    - *Lección aprendida*: La integración del PR #4 mediante `--squash` demostró que asumir el comportamiento por defecto de herramientas CLI puede romper convenciones de equipo (Gitflow con merge commits obligatorios). En un proyecto productivo o colaborativo, configuraría reglas de protección de rama en GitHub (`Require linear history` desactivado, y restringir las opciones de merge del repositorio exclusivamente a *Allow merge commits*, deshabilitando *Squash merging* y *Rebase merging* a nivel de configuración de repositorio).
 
-3. **Pruebas End-to-End (Playwright / Cypress) automatizadas para la UI**:
+2. **Pruebas End-to-End (Playwright / Cypress) automatizadas para la UI**:
    - *Lección aprendida*: La suite de pruebas unitarias y de integración se amplió a 64 tests automáticos en Vitest cubriendo el 100% del motor EVM, los servicios de aplicación desacoplados por el Patrón Repositorio y las API routes paginadas. Aunque la interacción visual del dashboard ahora cuenta con TanStack Query y componentes modales accesibles, incorporar pruebas E2E automatizadas con Playwright en el pipeline de CI cerraría el ciclo de aseguramiento de calidad de forma 100% desatendida en el navegador.
 
-4. **Automatización de Quality Gates desde el día cero**:
+3. **Automatización de Quality Gates desde el día cero**:
    - *Lección aprendida*: Configurar el pipeline de GitHub Actions (`ci.yml`) desde el inicio del proyecto asegura que cada Pull Request sea evaluado de manera idéntica al entorno de producción (verificando Prettier, ESLint, cobertura en Vitest y `next build`). La incorporación de este gate en la versión 1.1.0 eleva la madurez operativa del repositorio a un nivel de estándar industrial.
 
