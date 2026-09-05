@@ -26,10 +26,7 @@ export interface ApiHandlerOptions<TBody, TParams> {
 export function createApiHandler<TBody = void, TParams = Record<string, string>>(
   options: ApiHandlerOptions<TBody, TParams>
 ) {
-  return async (
-    req?: NextRequest,
-    routeContext?: { params: TParams }
-  ): Promise<NextResponse> => {
+  return async (req?: NextRequest, routeContext?: { params: TParams }): Promise<NextResponse> => {
     let body: TBody = undefined as unknown as TBody;
 
     if (options.schema) {
@@ -59,9 +56,7 @@ export function createApiHandler<TBody = void, TParams = Record<string, string>>
         errorMessage: error instanceof Error ? error.message : String(error),
         timestamp: new Date().toISOString(),
       });
-      return ApiResponse.internalError(
-        options.defaultErrorMessage || 'Error interno del servidor'
-      );
+      return ApiResponse.internalError(options.defaultErrorMessage || 'Error interno del servidor');
     }
   };
 }

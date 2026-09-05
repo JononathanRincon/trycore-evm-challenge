@@ -63,16 +63,15 @@ export const EvmComparisonChart: React.FC<EvmComparisonChartProps> = ({ activiti
           Comparativa de Desempeño: PV vs EV vs AC por Actividad
         </h3>
         <p className="text-xs text-slate-500 mt-0.5">
-          Elegimos barras agrupadas porque permiten contrastar directamente la tríada fundamental de EVM (alcance programado en azul, trabajo completado en verde y costo real en ámbar) para cada entrega sin interpolar datos discretos entre actividades independientes.
+          Elegimos barras agrupadas porque permiten contrastar directamente la tríada fundamental de
+          EVM (alcance programado en azul, trabajo completado en verde y costo real en ámbar) para
+          cada entrega sin interpolar datos discretos entre actividades independientes.
         </p>
       </div>
 
       <div className="h-80 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={chartData}
-            margin={{ top: 10, right: 30, left: 10, bottom: 25 }}
-          >
+          <BarChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 25 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
             <XAxis
               dataKey="name"

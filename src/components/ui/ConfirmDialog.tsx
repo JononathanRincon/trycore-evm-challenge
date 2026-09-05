@@ -104,7 +104,10 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             <h3 id="confirm-dialog-title" className="text-base font-bold text-slate-900">
               {title}
             </h3>
-            <p id="confirm-dialog-description" className="mt-2 text-xs leading-relaxed text-slate-600">
+            <p
+              id="confirm-dialog-description"
+              className="mt-2 text-xs leading-relaxed text-slate-600"
+            >
               {message}
             </p>
           </div>

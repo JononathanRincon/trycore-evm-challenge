@@ -28,11 +28,7 @@ export default function DashboardClient() {
   const [actionError, setActionError] = useState<string | null>(null);
 
   // TanStack Query Hooks
-  const {
-    data: projects = [],
-    isLoading: isLoadingProjects,
-    error: projectsError,
-  } = useProjects();
+  const { data: projects = [], isLoading: isLoadingProjects, error: projectsError } = useProjects();
 
   // Seleccionar automáticamente el primer proyecto si no hay uno activo
   useEffect(() => {
@@ -104,9 +100,7 @@ export default function DashboardClient() {
       <header className="border-b border-slate-200 bg-white px-6 py-4 shadow-2xs">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-indigo-600 p-2 text-white font-black text-sm">
-              EVM
-            </div>
+            <div className="rounded-lg bg-indigo-600 p-2 text-white font-black text-sm">EVM</div>
             <div>
               <h1 className="text-xl font-bold text-slate-900">
                 Trycore EVM Challenge — Dashboard de Gestión

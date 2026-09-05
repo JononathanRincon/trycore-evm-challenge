@@ -20,10 +20,7 @@ export class ProjectService {
   private projectRepo: IProjectRepository;
   private activityService: typeof ActivityService;
 
-  constructor(
-    projectRepo?: IProjectRepository,
-    activityService?: typeof ActivityService
-  ) {
+  constructor(projectRepo?: IProjectRepository, activityService?: typeof ActivityService) {
     this.projectRepo = projectRepo ?? new PrismaProjectRepository();
     this.activityService = activityService ?? ActivityService;
   }

@@ -1,7 +1,4 @@
-import {
-  CPI_INTERPRETATION,
-  SPI_INTERPRETATION,
-} from '@/core/evm/evm.constants';
+import { CPI_INTERPRETATION, SPI_INTERPRETATION } from '@/core/evm/evm.constants';
 
 export const openApiSpec = {
   openapi: '3.0.3',
@@ -512,8 +509,7 @@ export const openApiSpec = {
       delete: {
         tags: ['Activities'],
         summary: 'Eliminar una actividad',
-        description:
-          'Elimina permanentemente una actividad individual por su identificador UUID.',
+        description: 'Elimina permanentemente una actividad individual por su identificador UUID.',
         operationId: 'deleteActivity',
         parameters: [
           {
@@ -706,8 +702,7 @@ export const openApiSpec = {
             type: 'string',
             maxLength: 500,
             description: 'Descripción actualizada del proyecto.',
-            example:
-              'Despliegue inicial de módulos financiero y logístico con alcance ajustado.',
+            example: 'Despliegue inicial de módulos financiero y logístico con alcance ajustado.',
           },
         },
       },
@@ -1011,8 +1006,7 @@ export const openApiSpec = {
         properties: {
           pv: {
             type: 'number',
-            description:
-              'Valor Planificado (Planned Value): (plannedProgress / 100) * BAC.',
+            description: 'Valor Planificado (Planned Value): (plannedProgress / 100) * BAC.',
             example: 5000,
           },
           ev: {
